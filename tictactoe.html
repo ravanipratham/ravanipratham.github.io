@@ -1,56 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <title>Tic Tac Toe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   body {
-    background:#0f172a;
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    font-family:Arial;
+    background: #0f172a;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
   }
-  .board {
-    display:grid;
-    grid-template-columns:repeat(3,80px);
-    gap:5px;
-  }
+  .container { text-align: center; }
   button {
-    width:80px;
-    height:80px;
-    font-size:30px;
-    cursor:pointer;
+    padding: 10px;
+    margin: 6px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
   }
+  .menu button { width: 200px; background: #38bdf8; }
+  .home-btn { background: #64748b; color: white; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 80px);
+    gap: 5px;
+    justify-content: center;
+    margin: 15px auto;
+  }
+  .cell {
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+    border-radius: 6px;
+  }
+  .hidden { display: none; }
 </style>
 </head>
 <body>
 
-<div>
-  <h2>Tic Tac Toe</h2>
-  <div class="board">
-    <button onclick="play(this)"></button>
-    <button onclick="play(this)"></button>
-    <button onclick="play(this)"></button>
-    <button onclick="play(this)"></button>
-    <button onclick="play(this)"></button>
-    <button onclick="play(this)"></button>
-    <button onclick="play(this)"></button>
-    <button onclick="play(this)"></button>
-    <button onclick="play(this)"></button>
+<div class="container">
+
+  <!-- Mode Menu -->
+  <div id="menu">
+    <h2>Select Mode</h2>
+    <button onclick="startGame('player')">👥 2 Player</button><br>
+    <button onclick="startGame('computer')">🤖 Vs Computer</button><br>
+    <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
   </div>
-  <br>
-  <button onclick="location.href='index.html'">⬅ Home</button>
+
+  <!-- Game -->
+  <div id="game" class="hidden">
+    <h2 id="status">Player X Turn</h2>
+
+    <div class="board">
+      <button class="cell" onclick="move(0)"></button>
+      <button class="cell" onclick="move(1)"></button>
+      <button class="cell" onclick="move(2)"></button>
+      <button class="cell" onclick="move(3)"></button>
+      <button class="cell" onclick="move(4)"></button>
+      <button class="cell" onclick="move(5)"></button>
+      <button class="cell" onclick="move(6)"></button>
+      <button class="cell" onclick="move(7)"></button>
+      <button class="cell" onclick="move(8)"></button>
+    </div>
+
+    <button onclick="resetGame()">🔄 Restart</button><br><br>
+    <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
+  </div>
+
 </div>
 
 <script>
-let turn = "X";
-function play(btn){
-  if(btn.innerText === ""){
-    btn.innerText = turn;
-    turn = turn === "X" ? "O" : "X";
+let board = ["","","","","","","","",""];
+let currentPlayer = "X";
+let mode = "";
+let gameOver = false;
+
+const cells = document.querySelectorAll(".cell");
+const statusText = document.getElementById("status");
+
+const wins = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+
+function startGame(m){
+  mode = m;
+  document.getElementById("menu").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+}
+
+function move(i){
+  if(board[i] || gameOver) return;
+
+  board[i] = currentPlayer;
+  cells[i].innerText = currentPlayer;
+
+  if(checkWin(board, currentPlayer)){
+    statusText.innerText = `🎉 ${currentPlayer} Wins!`;
+    gameOver = true;
+    return;
   }
+
+  if(board.every(c => c)){
+    statusText.innerText = "😐 Draw!";
+    gameOver = true;
+    return;
+  }
+
+  currentPlayer = currentPlayer === "X" ? "O" : "X";
+  statusText.innerText = `Player ${currentPlayer} Turn`;
+
+  if(mode === "computer" && currentPlayer === "O"){
+    setTimeout(() => {
+      let bestMove = minimax(board, "O").index;
+      move(bestMove);
+    }, 400);
+  }
+}
+
+/* ---------- AI LOGIC ---------- */
+function minimax(newBoard, player){
+  let avail = newBoard.map((v,i)=>v===""?i:null).filter(v=>v!==null);
+
+  if(checkWin(newBoard,"X")) return {score:-10};
+  if(checkWin(newBoard,"O")) return {score:10};
+  if(avail.length === 0) return {score:0};
+
+  let moves = [];
+
+  for(let i of avail){
+    let move = {};
+    move.index = i;
+    newBoard[i] = player;
+
+    let result = minimax(newBoard, player==="O"?"X":"O");
+    move.score = result.score;
+
+    newBoard[i] = "";
+    moves.push(move);
+  }
+
+  let best;
+  if(player === "O"){
+    let max = -10000;
+    for(let m of moves){
+      if(m.score > max){
+        max = m.score;
+        best = m;
+      }
+    }
+  } else {
+    let min = 10000;
+    for(let m of moves){
+      if(m.score < min){
+        min = m.score;
+        best = m;
+      }
+    }
+  }
+  return best;
+}
+
+function checkWin(b,p){
+  return wins.some(w => w.every(i => b[i] === p));
+}
+
+function resetGame(){
+  board = ["","","","","","","","",""];
+  currentPlayer = "X";
+  gameOver = false;
+  statusText.innerText = "Player X Turn";
+  cells.forEach(c => c.innerText = "");
 }
 </script>
 
