@@ -26,14 +26,22 @@ canvas {
   border-radius: 12px;
 }
 
-button {
-  margin: 8px;
-  padding: 8px 16px;
+button, select {
+  margin: 6px;
+  padding: 8px 14px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 15px;
+}
+
+select {
+  background: #1e293b;
+  color: white;
+}
+
+.start-btn {
   background: #38bdf8;
-  font-size: 16px;
 }
 
 .home-btn {
@@ -48,28 +56,48 @@ button {
 <div class="container">
   <h2>🐦 Flappy Bird</h2>
 
+  <!-- Difficulty -->
+  <select id="difficulty">
+    <option value="easy">🟢 Easy</option>
+    <option value="medium" selected>🟡 Medium</option>
+    <option value="hard">🔴 Hard</option>
+  </select><br>
+
   <canvas id="game" width="320" height="420"></canvas><br>
 
-  <button onclick="startGame()">▶ Start</button>
+  <button class="start-btn" onclick="startGame()">▶ Start</button>
   <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
 </div>
 
-<!-- SOUND EFFECTS -->
-<audio id="jumpSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-<audio id="overSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<!-- NEW SOUNDS -->
+<audio id="flapSound" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.wav"></audio>
+<audio id="overSound" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.wav"></audio>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const jumpSound = document.getElementById("jumpSound");
+const flapSound = document.getElementById("flapSound");
 const overSound = document.getElementById("overSound");
 
-let birdY, velocity, gravity, pipes, score, highScore, gameRunning;
-
-highScore = localStorage.getItem("flappyHigh") || 0;
+let birdY, velocity, gravity;
+let pipes, score, gameRunning;
+let pipeSpeed, pipeGap;
 
 function startGame(){
+  const diff = document.getElementById("difficulty").value;
+
+  if(diff === "easy"){
+    pipeSpeed = 1.5;
+    pipeGap = 160;
+  } else if(diff === "medium"){
+    pipeSpeed = 2.2;
+    pipeGap = 130;
+  } else {
+    pipeSpeed = 3.2;
+    pipeGap = 100;
+  }
+
   birdY = 200;
   velocity = 0;
   gravity = 0.5;
@@ -85,8 +113,28 @@ canvas.addEventListener("click", jump);
 function jump(){
   if(!gameRunning) return;
   velocity = -8;
-  jumpSound.currentTime = 0;
-  jumpSound.play();
+  flapSound.currentTime = 0;
+  flapSound.play();
+}
+
+/* DRAW BIRD */
+function drawBird(){
+  ctx.fillStyle = "yellow";
+  ctx.beginPath();
+  ctx.arc(60, birdY, 12, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.arc(64, birdY-4, 2, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle = "orange";
+  ctx.beginPath();
+  ctx.moveTo(72, birdY);
+  ctx.lineTo(82, birdY+4);
+  ctx.lineTo(72, birdY+8);
+  ctx.fill();
 }
 
 function loop(){
@@ -94,24 +142,18 @@ function loop(){
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  /* Bird */
   velocity += gravity;
   birdY += velocity;
-  ctx.fillStyle = "yellow";
-  ctx.beginPath();
-  ctx.arc(60, birdY, 12, 0, Math.PI*2);
-  ctx.fill();
+  drawBird();
 
-  /* Pipes */
   if(pipes.length === 0 || pipes[pipes.length-1].x < 180){
-    let gap = 130;
     let top = Math.random()*150 + 30;
-    pipes.push({x:320, top:top, bottom:top+gap, scored:false});
+    pipes.push({x:320, top:top, bottom:top+pipeGap, scored:false});
   }
 
   ctx.fillStyle = "green";
   pipes.forEach(p => {
-    p.x -= 2;
+    p.x -= pipeSpeed;
     ctx.fillRect(p.x,0,45,p.top);
     ctx.fillRect(p.x,p.bottom,45,420);
 
@@ -130,16 +172,13 @@ function loop(){
 
   pipes = pipes.filter(p => p.x > -50);
 
-  /* Ground / Ceiling */
-  if(birdY > 420 || birdY < 0){
+  if(birdY < 0 || birdY > 420){
     gameOver();
   }
 
-  /* Score */
   ctx.fillStyle = "white";
   ctx.font = "18px Arial";
   ctx.fillText("Score: " + score, 10, 25);
-  ctx.fillText("Best: " + highScore, 220, 25);
 
   requestAnimationFrame(loop);
 }
@@ -147,15 +186,9 @@ function loop(){
 function gameOver(){
   gameRunning = false;
   overSound.play();
-
-  if(score > highScore){
-    highScore = score;
-    localStorage.setItem("flappyHigh", highScore);
-  }
-
   ctx.fillStyle = "red";
-  ctx.font = "30px Arial";
-  ctx.fillText("Game Over", 70, 220);
+  ctx.font = "28px Arial";
+  ctx.fillText("Game Over", 75, 220);
 }
 </script>
 
