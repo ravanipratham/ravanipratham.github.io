@@ -6,30 +6,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* ===== GLOBAL ===== */
 body {
   margin: 0;
+  height: 100vh;
   background: linear-gradient(135deg, #020617, #0f172a);
   font-family: Arial, sans-serif;
   color: white;
-  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
 }
 
-/* ===== CONTAINER ===== */
 .container {
   text-align: center;
-  animation: fadeIn 1.2s ease-in-out;
+  animation: fadeIn 1.2s ease;
 }
 
-/* ===== TITLE ===== */
 h1 {
-  font-size: 32px;
-  margin-bottom: 10px;
-  animation: slideDown 1s ease;
+  font-size: 34px;
+  margin-bottom: 8px;
 }
 
 .subtitle {
@@ -37,7 +32,6 @@ h1 {
   margin-bottom: 30px;
 }
 
-/* ===== CARDS ===== */
 .cards {
   display: flex;
   gap: 20px;
@@ -51,7 +45,7 @@ h1 {
   background: rgba(2, 6, 23, 0.9);
   border-radius: 16px;
   cursor: pointer;
-  transition: transform 0.4s, box-shadow 0.4s;
+  transition: 0.4s;
   animation: popUp 1s ease;
 }
 
@@ -65,38 +59,29 @@ h1 {
 }
 
 .card h3 {
-  margin: 15px 0 8px;
+  margin: 15px 0 6px;
 }
 
-/* ===== FOOTER ===== */
 .footer {
   margin-top: 25px;
   font-size: 13px;
   color: #94a3b8;
-  animation: fadeIn 2s ease;
 }
 
-/* ===== ANIMATIONS ===== */
+/* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {opacity:0;}
+  to {opacity:1;}
 }
 
 @keyframes popUp {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
+  from {opacity:0; transform:scale(0.8);}
+  to {opacity:1; transform:scale(1);}
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
-  .cards {
-    flex-direction: column;
-  }
+/* Mobile */
+@media(max-width:600px){
+  .cards { flex-direction: column; }
 }
 </style>
 </head>
@@ -105,20 +90,31 @@ h1 {
 
 <div class="container">
   <h1>Pratham Web Apps</h1>
-  <p class="subtitle">Choose an application</p>
+  <p class="subtitle">Choose an app or game</p>
 
   <div class="cards">
+
+    <!-- Calculator -->
     <div class="card" onclick="location.href='calculator.html'">
       <span>🧮</span>
       <h3>Calculator</h3>
-      <p>Fast & Simple</p>
+      <p>Mobile Style</p>
     </div>
 
+    <!-- Tic Tac Toe -->
     <div class="card" onclick="location.href='tictactoe.html'">
       <span>❌⭕</span>
       <h3>Tic Tac Toe</h3>
       <p>2 Player / AI</p>
     </div>
+
+    <!-- Flappy Bird -->
+    <div class="card" onclick="location.href='flappy.html'">
+      <span>🐦</span>
+      <h3>Flappy Bird</h3>
+      <p>Tap to Fly</p>
+    </div>
+
   </div>
 
   <div class="footer">
