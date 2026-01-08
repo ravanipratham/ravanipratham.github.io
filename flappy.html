@@ -1,161 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Flappy Bird</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<style>
-body {
-  margin: 0;
-  background: #020617;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-family: Arial, sans-serif;
-  color: white;
-}
-
-.container {
-  text-align: center;
-}
-
-canvas {
-  background: linear-gradient(#60a5fa, #93c5fd);
-  border-radius: 12px;
-}
-
-button, select {
-  margin: 6px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 15px;
-}
-
-select {
-  background: #1e293b;
-  color: white;
-}
-
-.start-btn {
-  background: #38bdf8;
-}
-
-.home-btn {
-  background: #64748b;
-  color: white;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-  <h2>🐦 Flappy Bird</h2>
-
-  <!-- Difficulty -->
-  <select id="difficulty">
-    <option value="easy">🟢 Easy</option>
-    <option value="medium" selected>🟡 Medium</option>
-    <option value="hard">🔴 Hard</option>
-  </select><br>
-
-  <canvas id="game" width="320" height="420"></canvas><br>
-
-  <button class="start-btn" onclick="startGame()">▶ Start</button>
-  <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
-</div>
-
-<!-- NEW SOUNDS -->
-<audio id="flapSound" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.wav"></audio>
-<audio id="overSound" src="https://assets.mixkit.co/sfx/preview/mixkit-player-losing-or-failing-2042.wav"></audio>
-
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const flapSound = document.getElementById("flapSound");
-const overSound = document.getElementById("overSound");
+let birdY, velocity;
+let gravity = 0.5;
+let pipes = [];
+let score = 0;
+let gameRunning = false;
+let pipeSpeed = 2;
+let pipeGap = 130;
+let animationId;
 
-let birdY, velocity, gravity;
-let pipes, score, gameRunning;
-let pipeSpeed, pipeGap;
-
+/* START GAME */
 function startGame(){
+  cancelAnimationFrame(animationId);   // stop old loop
+
+  // APPLY DIFFICULTY
   const diff = document.getElementById("difficulty").value;
 
   if(diff === "easy"){
     pipeSpeed = 1.5;
-    pipeGap = 160;
-  } else if(diff === "medium"){
-    pipeSpeed = 2.2;
+    pipeGap = 170;
+  }
+  else if(diff === "medium"){
+    pipeSpeed = 2.5;
     pipeGap = 130;
-  } else {
-    pipeSpeed = 3.2;
+  }
+  else{
+    pipeSpeed = 3.5;
     pipeGap = 100;
   }
 
-  birdY = 200;
+  // RESET GAME
+  birdY = canvas.height / 2;
   velocity = 0;
-  gravity = 0.5;
   pipes = [];
   score = 0;
   gameRunning = true;
+
   loop();
 }
 
+/* JUMP */
 document.addEventListener("keydown", jump);
 canvas.addEventListener("click", jump);
 
 function jump(){
   if(!gameRunning) return;
   velocity = -8;
-  flapSound.currentTime = 0;
-  flapSound.play();
 }
 
 /* DRAW BIRD */
 function drawBird(){
   ctx.fillStyle = "yellow";
   ctx.beginPath();
-  ctx.arc(60, birdY, 12, 0, Math.PI*2);
-  ctx.fill();
-
-  ctx.fillStyle = "black";
-  ctx.beginPath();
-  ctx.arc(64, birdY-4, 2, 0, Math.PI*2);
-  ctx.fill();
-
-  ctx.fillStyle = "orange";
-  ctx.beginPath();
-  ctx.moveTo(72, birdY);
-  ctx.lineTo(82, birdY+4);
-  ctx.lineTo(72, birdY+8);
+  ctx.arc(60, birdY, 12, 0, Math.PI * 2);
   ctx.fill();
 }
 
+/* GAME LOOP */
 function loop(){
   if(!gameRunning) return;
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   velocity += gravity;
   birdY += velocity;
   drawBird();
 
-  if(pipes.length === 0 || pipes[pipes.length-1].x < 180){
-    let top = Math.random()*150 + 30;
-    pipes.push({x:320, top:top, bottom:top+pipeGap, scored:false});
+  // CREATE PIPES
+  if(pipes.length === 0 || pipes[pipes.length - 1].x < 180){
+    let top = Math.random() * 150 + 40;
+    pipes.push({
+      x: canvas.width,
+      top: top,
+      bottom: top + pipeGap,
+      scored: false
+    });
   }
 
   ctx.fillStyle = "green";
   pipes.forEach(p => {
     p.x -= pipeSpeed;
-    ctx.fillRect(p.x,0,45,p.top);
-    ctx.fillRect(p.x,p.bottom,45,420);
+
+    ctx.fillRect(p.x, 0, 45, p.top);
+    ctx.fillRect(p.x, p.bottom, 45, canvas.height);
 
     if(p.x < 60 && !p.scored){
       score++;
@@ -163,7 +92,7 @@ function loop(){
     }
 
     if(
-      60 > p.x && 60 < p.x+45 &&
+      60 > p.x && 60 < p.x + 45 &&
       (birdY < p.top || birdY > p.bottom)
     ){
       gameOver();
@@ -172,7 +101,7 @@ function loop(){
 
   pipes = pipes.filter(p => p.x > -50);
 
-  if(birdY < 0 || birdY > 420){
+  if(birdY < 0 || birdY > canvas.height){
     gameOver();
   }
 
@@ -180,17 +109,13 @@ function loop(){
   ctx.font = "18px Arial";
   ctx.fillText("Score: " + score, 10, 25);
 
-  requestAnimationFrame(loop);
+  animationId = requestAnimationFrame(loop);
 }
 
 function gameOver(){
   gameRunning = false;
-  overSound.play();
   ctx.fillStyle = "red";
   ctx.font = "28px Arial";
-  ctx.fillText("Game Over", 75, 220);
+  ctx.fillText("Game Over", 75, canvas.height / 2);
 }
 </script>
-
-</body>
-</html>
