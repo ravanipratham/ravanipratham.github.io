@@ -4,141 +4,144 @@
 <meta charset="UTF-8">
 <title>Pratham Calculator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-  body {
-    background: #0f172a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-family: Arial, sans-serif;
-  }
+body {
+  margin: 0;
+  background: black;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-  .calculator {
-    background: #020617;
-    padding: 20px;
-    border-radius: 12px;
-    width: 280px;
-    text-align: center;
-  }
+.calculator {
+  width: 320px;
+  padding: 15px;
+  background: black;
+}
 
-  .home-btn {
-    background: #64748b;
-    color: white;
-    width: 100%;
-    height: 35px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-  }
+.display {
+  color: white;
+  font-size: 48px;
+  text-align: right;
+  padding: 20px 10px;
+  height: 90px;
+}
 
-  input {
-    width: 100%;
-    height: 50px;
-    font-size: 22px;
-    margin-bottom: 10px;
-    text-align: right;
-    border-radius: 8px;
-    border: none;
-    padding: 5px;
-  }
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
 
-  button {
-    width: 60px;
-    height: 50px;
-    margin: 5px;
-    font-size: 18px;
-    border-radius: 8px;
-    border: none;
-    background: #38bdf8;
-    cursor: pointer;
-  }
+button {
+  height: 60px;
+  border-radius: 16px;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  background: #2a2a2a;
+  color: white;
+}
 
-  button.operator {
-    background: #22c55e;
-  }
+button.operator {
+  color: orange;
+}
 
-  button.clear {
-    background: #ef4444;
-    color: white;
-  }
+button.equal {
+  background: orange;
+  color: white;
+}
 
-  .footer {
-    margin-top: 10px;
-    font-size: 12px;
-    color: #94a3b8;
-  }
+button.gray {
+  color: orange;
+}
+
+.zero {
+  grid-column: span 2;
+}
+
+.home-btn {
+  width: 100%;
+  margin-bottom: 10px;
+  height: 40px;
+  border-radius: 10px;
+  background: #1f2933;
+  color: white;
+}
 </style>
 </head>
+
 <body>
 
 <div class="calculator">
 
   <!-- Home Button -->
-  <button class="home-btn" onclick="location.href='index.html'">
-    ⬅ Home
-  </button>
+  <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
 
-  <input type="text" id="display" readonly>
+  <!-- Display -->
+  <div id="display" class="display">0</div>
 
-  <div>
-    <button onclick="clearDisplay()" class="clear">C</button>
-    <button onclick="appendValue('%')" class="operator">%</button>
-    <button onclick="appendValue('/')" class="operator">÷</button>
-    <button onclick="appendValue('*')" class="operator">×</button>
-  </div>
+  <!-- Buttons -->
+  <div class="buttons">
+    <button class="gray" onclick="clearAll()">AC</button>
+    <button class="gray" onclick="backspace()">⌫</button>
+    <button class="gray" onclick="append('%')">%</button>
+    <button class="operator" onclick="append('/')">÷</button>
 
-  <div>
-    <button onclick="appendValue('7')">7</button>
-    <button onclick="appendValue('8')">8</button>
-    <button onclick="appendValue('9')">9</button>
-    <button onclick="appendValue('-')" class="operator">−</button>
-  </div>
+    <button onclick="append('7')">7</button>
+    <button onclick="append('8')">8</button>
+    <button onclick="append('9')">9</button>
+    <button class="operator" onclick="append('*')">×</button>
 
-  <div>
-    <button onclick="appendValue('4')">4</button>
-    <button onclick="appendValue('5')">5</button>
-    <button onclick="appendValue('6')">6</button>
-    <button onclick="appendValue('+')" class="operator">+</button>
-  </div>
+    <button onclick="append('4')">4</button>
+    <button onclick="append('5')">5</button>
+    <button onclick="append('6')">6</button>
+    <button class="operator" onclick="append('-')">−</button>
 
-  <div>
-    <button onclick="appendValue('1')">1</button>
-    <button onclick="appendValue('2')">2</button>
-    <button onclick="appendValue('3')">3</button>
-    <button onclick="calculate()" class="operator">=</button>
-  </div>
+    <button onclick="append('1')">1</button>
+    <button onclick="append('2')">2</button>
+    <button onclick="append('3')">3</button>
+    <button class="operator" onclick="append('+')">+</button>
 
-  <div>
-    <button onclick="appendValue('0')" style="width:130px;">0</button>
-    <button onclick="appendValue('.')">.</button>
-  </div>
-
-  <div class="footer">
-    Made by <strong>Pratham</strong>
+    <button class="zero" onclick="append('0')">0</button>
+    <button onclick="append('.')">.</button>
+    <button class="equal" onclick="calculate()">=</button>
   </div>
 
 </div>
 
 <script>
-  const display = document.getElementById("display");
+let display = document.getElementById("display");
 
-  function appendValue(value) {
-    display.value += value;
+function append(value) {
+  if (display.innerText === "0") {
+    display.innerText = value;
+  } else {
+    display.innerText += value;
   }
+}
 
-  function clearDisplay() {
-    display.value = "";
-  }
+function clearAll() {
+  display.innerText = "0";
+}
 
-  function calculate() {
-    try {
-      display.value = eval(display.value);
-    } catch {
-      display.value = "Error";
-    }
+function backspace() {
+  display.innerText =
+    display.innerText.length > 1
+      ? display.innerText.slice(0, -1)
+      : "0";
+}
+
+function calculate() {
+  try {
+    display.innerText = eval(display.innerText);
+  } catch {
+    display.innerText = "Error";
   }
+}
 </script>
 
 </body>
