@@ -2,110 +2,52 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pratham Calculator</title>
+<title>Pratham Apps</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   body {
     background: #0f172a;
+    font-family: Arial, sans-serif;
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    font-family: Arial, sans-serif;
   }
-  .calculator {
+  .container {
+    text-align: center;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  .card {
     background: #020617;
     padding: 20px;
+    margin: 15px;
     border-radius: 12px;
-    width: 280px;
-  }
-  input {
-    width: 100%;
-    height: 50px;
-    font-size: 22px;
-    margin-bottom: 10px;
-    text-align: right;
-    border-radius: 8px;
-    border: none;
-    padding: 5px;
-  }
-  button {
-    width: 60px;
-    height: 50px;
-    margin: 5px;
-    font-size: 18px;
-    border-radius: 8px;
-    border: none;
-    background: #38bdf8;
     cursor: pointer;
+    transition: 0.3s;
   }
-  button.operator {
-    background: #22c55e;
-  }
-  button.clear {
-    background: #ef4444;
-    color: white;
+  .card:hover {
+    background: #1e293b;
   }
 </style>
 </head>
 <body>
 
-<div class="calculator">
-  <input type="text" id="display" readonly>
+<div class="container">
+  <h1>Pratham Web Apps</h1>
 
-  <div>
-    <button onclick="clearDisplay()" class="clear">C</button>
-    <button onclick="appendValue('%')" class="operator">%</button>
-    <button onclick="appendValue('/')" class="operator">÷</button>
-    <button onclick="appendValue('*')" class="operator">×</button>
+  <div class="card" onclick="location.href='calculator.html'">
+    🧮 Calculator
   </div>
 
-  <div>
-    <button onclick="appendValue('7')">7</button>
-    <button onclick="appendValue('8')">8</button>
-    <button onclick="appendValue('9')">9</button>
-    <button onclick="appendValue('-')" class="operator">−</button>
+  <div class="card" onclick="location.href='tictactoe.html'">
+    ❌⭕ Tic Tac Toe
   </div>
 
-  <div>
-    <button onclick="appendValue('4')">4</button>
-    <button onclick="appendValue('5')">5</button>
-    <button onclick="appendValue('6')">6</button>
-    <button onclick="appendValue('+')" class="operator">+</button>
-  </div>
-
-  <div>
-    <button onclick="appendValue('1')">1</button>
-    <button onclick="appendValue('2')">2</button>
-    <button onclick="appendValue('3')">3</button>
-    <button onclick="calculate()" class="operator">=</button>
-  </div>
-
-  <div>
-    <button onclick="appendValue('0')" style="width:130px;">0</button>
-    <button onclick="appendValue('.')">.</button>
-  </div>
+  <p style="font-size:12px;color:#94a3b8;">Made by Pratham</p>
 </div>
-
-<script>
-  const display = document.getElementById("display");
-
-  function appendValue(value) {
-    display.value += value;
-  }
-
-  function clearDisplay() {
-    display.value = "";
-  }
-
-  function calculate() {
-    try {
-      display.value = eval(display.value);
-    } catch {
-      display.value = "Error";
-    }
-  }
-</script>
 
 </body>
 </html>
