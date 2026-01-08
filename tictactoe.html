@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tic Tac Toe</title>
+<style>
+  body {
+    background:#0f172a;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    font-family:Arial;
+  }
+  .board {
+    display:grid;
+    grid-template-columns:repeat(3,80px);
+    gap:5px;
+  }
+  button {
+    width:80px;
+    height:80px;
+    font-size:30px;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div>
+  <h2>Tic Tac Toe</h2>
+  <div class="board">
+    <button onclick="play(this)"></button>
+    <button onclick="play(this)"></button>
+    <button onclick="play(this)"></button>
+    <button onclick="play(this)"></button>
+    <button onclick="play(this)"></button>
+    <button onclick="play(this)"></button>
+    <button onclick="play(this)"></button>
+    <button onclick="play(this)"></button>
+    <button onclick="play(this)"></button>
+  </div>
+  <br>
+  <button onclick="location.href='index.html'">⬅ Home</button>
+</div>
+
+<script>
+let turn = "X";
+function play(btn){
+  if(btn.innerText === ""){
+    btn.innerText = turn;
+    turn = turn === "X" ? "O" : "X";
+  }
+}
+</script>
+
+</body>
+</html>
