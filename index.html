@@ -127,6 +127,19 @@ footer {
 <footer>
   Made by Pratham ❤️
 </footer>
+<script>
+/* Protect Page */
+if(localStorage.getItem("loggedIn") !== "true"){
+  window.location.href = "login.html";
+}
+
+/* Logout */
+function logout(){
+  localStorage.removeItem("loggedIn");
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
+}
+</script>
 
 </body>
 </html>
