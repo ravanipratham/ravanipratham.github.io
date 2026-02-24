@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#020617">
+<title>Login | Pratham Apps Hub</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: radial-gradient(circle at top,#0f172a,#020617);
+  font-family: Arial, sans-serif;
+  color:white;
+}
+
+.box{
+  background:#020617;
+  padding:30px;
+  border-radius:16px;
+  width:90%;
+  max-width:350px;
+  text-align:center;
+  box-shadow:0 0 30px rgba(56,189,248,0.3);
+}
+
+h2{
+  margin-bottom:20px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border:none;
+  border-radius:8px;
+  font-size:15px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  background:#38bdf8;
+  font-size:16px;
+  cursor:pointer;
+}
+
+button:active{
+  transform:scale(0.97);
+}
+
+.small{
+  margin-top:15px;
+  font-size:13px;
+  opacity:0.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>🔐 Login</h2>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <p class="small">Demo Login → Username: pratham | Password: 1234</p>
+</div>
+
+<script>
+function login(){
+  let user = document.getElementById("username").value.trim();
+  let pass = document.getElementById("password").value.trim();
+
+  if(user === "pratham" && pass === "1234"){
+    localStorage.setItem("loggedIn", "true");
+    localStorage.setItem("user", user);
+    window.location.href = "index.html";
+  } else {
+    alert("Invalid Username or Password");
+  }
+}
+</script>
+
+</body>
+</html>
