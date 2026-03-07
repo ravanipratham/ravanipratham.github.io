@@ -12,6 +12,9 @@ body {
   font-family: Arial, sans-serif;
   color: white;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 header {
@@ -35,6 +38,7 @@ header p {
   gap: 20px;
   padding: 30px;
   animation: fadeUp 1.2s ease;
+  flex: 1;
 }
 
 .card {
@@ -67,14 +71,29 @@ header p {
   background: #38bdf8;
   font-size: 15px;
   cursor: pointer;
+  color: #020617;
+  font-weight: bold;
 }
 
 footer {
   text-align: center;
-  opacity: 0.5;
-  padding: 15px;
+  padding: 25px;
   font-size: 14px;
 }
+
+.logout-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.logout-btn:hover { opacity: 1; }
 
 /* Animations */
 @keyframes fadeDown {
@@ -87,21 +106,26 @@ footer {
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
+
+<script>
+  /* PROTECT PAGE: 
+     Moved to head so it checks BEFORE the body renders.
+  */
+  if(localStorage.getItem("loggedIn") !== "true"){
+    window.location.replace("login.html");
+  }
+</script>
 </head>
 
 <body>
 
 <header>
   <h1>🚀 Pratham Apps Hub</h1>
-  <p>Calculator • O/X Game • Flappy Bird</p><header>
-  <h1>🚀 Pratham Apps Hub</h1>
   <p>Calculator • O/X Game • Flappy Bird</p>
-</header>
 </header>
 
 <div class="container">
 
-  <!-- Calculator -->
   <div class="card">
     <span>🧮</span>
     <h3>Calculator</h3>
@@ -109,7 +133,6 @@ footer {
     <button onclick="location.href='calculator.html'">Open</button>
   </div>
 
-  <!-- Tic Tac Toe -->
   <div class="card">
     <span>❌⭕</span>
     <h3>O / X Game</h3>
@@ -117,7 +140,6 @@ footer {
     <button onclick="location.href='tictactoe.html'">Play</button>
   </div>
 
-  <!-- Flappy Bird -->
   <div class="card">
     <span>🐦</span>
     <h3>Flappy Bird</h3>
@@ -128,19 +150,15 @@ footer {
 </div>
 
 <footer>
-  Made by Pratham ❤️
+  <p>Made by Pratham ❤️</p>
+  <button class="logout-btn" onclick="logout()">Logout Session</button>
 </footer>
-<script>
-/* Protect Page */
-if(localStorage.getItem("loggedIn") !== "true"){
-  window.location.href = "login.html";
-}
 
-/* Logout */
+<script>
 function logout(){
   localStorage.removeItem("loggedIn");
   localStorage.removeItem("user");
-  window.location.href = "login.html";
+  window.location.replace("login.html");
 }
 </script>
 
