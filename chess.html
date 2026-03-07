@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pratham Chess</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body {
+    background: #0f172a;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  .status { margin-bottom: 10px; font-size: 1.2rem; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(8, 40px);
+    grid-template-rows: repeat(8, 40px);
+    border: 5px solid #334155;
+  }
+  @media (min-width: 600px) {
+    .board { grid-template-columns: repeat(8, 60px); grid-template-rows: repeat(8, 60px); }
+  }
+  .square {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .white { background-color: #e2e8f0; color: #000; }
+  .black { background-color: #475569; color: #fff; }
+  .selected { background-color: #fbbf24 !important; }
+  .home-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #64748b;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="status" id="status">White's Turn</div>
+<div class="board" id="board"></div>
+<button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
+
+<script>
+const boardElement = document.getElementById('board');
+const statusElement = document.getElementById('status');
+
+// Unicode characters for chess pieces
+const pieces = {
+  r: '♜', n: '♞', b: '♝', q: '♛', k: '♚', p: '♟',
+  R: '♖', N: '♘', B: '♗', Q: '♕', K: '♔', P: '♙'
+};
+
+let board = [
+  ['r','n','b','q','k','b','n','r'],
+  ['p','p','p','p','p','p','p','p'],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['P','P','P','P','P','P','P','P'],
+  ['R','N','B','Q','K','B','N','R']
+];
+
+let selectedSquare = null;
+let turn = 'white';
+
+function createBoard() {
+  boardElement.innerHTML = '';
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const square = document.createElement('div');
+      square.classList.add('square');
+      square.classList.add((r + c) % 2 === 0 ? 'white' : 'black');
+      square.dataset.row = r;
+      square.dataset.col = c;
+      
+      const piece = board[r][c];
+      if (piece) square.innerText = pieces[piece];
+      
+      square.onclick = () => handleSquareClick(r, c);
+      boardElement.appendChild(square);
+    }
+  }
+}
+
+function handleSquareClick(r, c) {
+  const piece = board[r][c];
+  const isWhitePiece = piece && piece === piece.toUpperCase();
+  const isBlackPiece = piece && piece === piece.toLowerCase();
+
+  // Selecting a piece
+  if (selectedSquare === null) {
+    if ((turn === 'white' && isWhitePiece) || (turn === 'black' && isBlackPiece)) {
+      selectedSquare = { r, c };
+      highlightSquare(r, c);
+    }
+  } 
+  // Moving a piece
+  else {
+    const sr = selectedSquare.r;
+    const sc = selectedSquare.c;
+    
+    if (sr === r && sc === c) {
+      selectedSquare = null;
+      createBoard();
+      return;
+    }
+
+    // Basic move logic (Capture or Move to empty)
+    board[r][c] = board[sr][sc];
+    board[sr][sc] = '';
+    
+    turn = turn === 'white' ? 'black' : 'white';
+    statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
+    selectedSquare = null;
+    createBoard();
+  }
+}
+
+function highlightSquare(r, c) {
+  createBoard();
+  const index = r * 8 + c;
+  boardElement.children[index].classList.add('selected');
+}
+
+createBoard();
+</script>
+</body>
+</html>
