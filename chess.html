@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pratham Chess</title>
+<title>Pratham Chess Pro</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   body {
@@ -16,12 +16,9 @@
     margin-bottom: 10px; font-size: 1.5rem; font-weight: bold; color: #38bdf8;
     text-shadow: 0 0 10px rgba(56,189,248,0.3);
   }
-  .game-container {
-    display: flex; flex-direction: column; align-items: center; gap: 15px;
-  }
-  @media (min-width: 950px) {
-    .game-container { flex-direction: row; align-items: flex-start; }
-  }
+  .game-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+  @media (min-width: 950px) { .game-container { flex-direction: row; align-items: flex-start; } }
+  
   .graveyard {
     background: rgba(30, 41, 59, 0.5); padding: 10px; border-radius: 12px;
     width: 240px; min-height: 60px; display: flex; flex-wrap: wrap; gap: 5px;
@@ -33,29 +30,22 @@
     display: grid; grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(8, 40px);
     border: 8px solid #334155; box-shadow: 0 0 30px rgba(0,0,0,0.6);
   }
-  @media (min-width: 600px) {
-    .board { grid-template-columns: repeat(8, 60px); grid-template-rows: repeat(8, 60px); }
-  }
-  .square {
-    width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;
-    font-size: 38px; cursor: pointer; user-select: none; position: relative;
-  }
+  @media (min-width: 600px) { .board { grid-template-columns: repeat(8, 60px); grid-template-rows: repeat(8, 60px); } }
+  
+  .square { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 38px; cursor: pointer; user-select: none; position: relative; }
   .white-sq { background-color: #e2e8f0; }
   .black-sq { background-color: #475569; }
   .p-white { color: #ffffff; text-shadow: 0 0 4px #000; z-index: 2; } 
   .p-black { color: #000000; z-index: 2; }
+  
   .selected { background-color: #fbbf24 !important; }
-  .hint::after {
-    content: ''; width: 14px; height: 14px; background-color: rgba(0, 0, 0, 0.15); border-radius: 50%;
-    position: absolute; z-index: 1;
-  }
+  .check { background-color: #ef4444 !important; } /* Red for King in check */
+  .hint::after { content: ''; width: 14px; height: 14px; background-color: rgba(0, 0, 0, 0.15); border-radius: 50%; position: absolute; z-index: 1; }
+
   .controls { display: flex; gap: 10px; margin-top: 20px; }
-  button {
-    padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s;
-  }
+  button { padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
   .undo-btn { background: #64748b; color: white; }
   .home-btn { background: #38bdf8; color: #020617; }
-  button:hover { transform: scale(1.05); opacity: 0.9; }
 </style>
 </head>
 <body>
@@ -100,14 +90,20 @@ let history = [];
 
 function createBoard() {
   boardElement.innerHTML = '';
+  const checkPos = isKingInCheck(turn, board);
+  
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       const square = document.createElement('div');
       square.className = `square ${(r + c) % 2 === 0 ? 'white-sq' : 'black-sq'}`;
       const piece = board[r][c];
+      
       if (piece) {
         square.innerText = pieces[piece];
         square.classList.add(piece === piece.toUpperCase() ? 'p-white' : 'p-black');
+        if (piece.toLowerCase() === 'k' && ((turn==='white' && piece==='K') || (turn==='black' && piece==='k')) && checkPos) {
+          square.classList.add('check');
+        }
       }
       square.onclick = () => handleSquareClick(r, c);
       boardElement.appendChild(square);
@@ -115,63 +111,87 @@ function createBoard() {
   }
 }
 
-function isPathClear(sr, sc, dr, dc) {
+function isPathClear(sr, sc, dr, dc, tempBoard) {
   let rStep = dr === sr ? 0 : (dr > sr ? 1 : -1);
   let cStep = dc === sc ? 0 : (dc > sc ? 1 : -1);
   let currR = sr + rStep, currC = sc + cStep;
   while (currR !== dr || currC !== dc) {
-    if (board[currR][currC] !== '') return false;
+    if (tempBoard[currR][currC] !== '') return false;
     currR += rStep; currC += cStep;
   }
   return true;
 }
 
-function isValidMove(sr, sc, dr, dc, piece, target) {
+function isValidMove(sr, sc, dr, dc, piece, target, tempBoard) {
   const isWhite = piece === piece.toUpperCase();
   const absR = Math.abs(dr - sr), absC = Math.abs(dc - sc), pType = piece.toLowerCase();
   if (target !== '' && isWhite === (target === target.toUpperCase())) return false;
+  
+  let valid = false;
   if (pType === 'p') {
     const dir = isWhite ? -1 : 1;
-    if (sc === dc && dr === sr + dir && target === '') return true;
-    if (sc === dc && sr === (isWhite?6:1) && dr === sr + 2*dir && target === '' && board[sr+dir][sc] === '') return true;
-    if (absC === 1 && dr === sr + dir && target !== '') return true;
-    return false;
+    if (sc === dc && dr === sr + dir && target === '') valid = true;
+    else if (sc === dc && sr === (isWhite?6:1) && dr === sr + 2*dir && target === '' && tempBoard[sr+dir][sc] === '') valid = true;
+    else if (absC === 1 && dr === sr + dir && target !== '') valid = true;
   }
+  else if (pType === 'n') valid = (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
+  else if (pType === 'r') valid = (sr === dr || sc === dc) && isPathClear(sr, sc, dr, dc, tempBoard);
+  else if (pType === 'b') valid = (absR === absC) && isPathClear(sr, sc, dr, dc, tempBoard);
+  else if (pType === 'q') valid = ((sr === dr || sc === dc) || (absR === absC)) && isPathClear(sr, sc, dr, dc, tempBoard);
+  else if (pType === 'k') valid = (absR <= 1 && absC <= 1);
+
+  if (!valid) return false;
+
+  // Move must not leave King in check
+  const nextBoard = JSON.parse(JSON.stringify(tempBoard));
+  nextBoard[dr][dc] = nextBoard[sr][sc];
+  nextBoard[sr][sc] = '';
+  return !isKingInCheck(isWhite ? 'white' : 'black', nextBoard);
+}
+
+function isKingInCheck(color, tempBoard) {
+  let kPos = null;
+  const king = color === 'white' ? 'K' : 'k';
+  for(let r=0; r<8; r++) for(let c=0; c<8; c++) if(tempBoard[r][c] === king) kPos = {r,c};
+  if(!kPos) return false;
+
+  for(let r=0; r<8; r++) {
+    for(let c=0; c<8; c++) {
+      const p = tempBoard[r][c];
+      if(p !== '' && (color === 'white' ? p === p.toLowerCase() : p === p.toUpperCase())) {
+        // Use a simpler check for path/validity to avoid infinite recursion
+        if (canPieceAttack(r, c, kPos.r, kPos.c, p, tempBoard)) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function canPieceAttack(sr, sc, dr, dc, p, b) {
+  const absR = Math.abs(dr - sr), absC = Math.abs(dc - sc), pType = p.toLowerCase();
+  if (pType === 'p') return absC === 1 && dr === sr + (p === p.toUpperCase() ? -1 : 1);
   if (pType === 'n') return (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
-  if (pType === 'r') return (sr === dr || sc === dc) && isPathClear(sr, sc, dr, dc);
-  if (pType === 'b') return (absR === absC) && isPathClear(sr, sc, dr, dc);
-  if (pType === 'q') return ((sr === dr || sc === dc) || (absR === absC)) && isPathClear(sr, sc, dr, dc);
+  if (pType === 'r') return (sr === dr || sc === dc) && isPathClear(sr, sc, dr, dc, b);
+  if (pType === 'b') return (absR === absC) && isPathClear(sr, sc, dr, dc, b);
+  if (pType === 'q') return ((sr === dr || sc === dc) || (absR === absC)) && isPathClear(sr, sc, dr, dc, b);
   if (pType === 'k') return (absR <= 1 && absC <= 1);
   return false;
 }
 
-function saveHistory() {
-  history.push({
-    board: JSON.parse(JSON.stringify(board)),
-    turn: turn,
-    whiteGraveHTML: whiteGrave.innerHTML,
-    blackGraveHTML: blackGrave.innerHTML
-  });
-}
-
-function undoMove() {
-  if (history.length === 0) return;
-  const lastState = history.pop();
-  board = lastState.board;
-  turn = lastState.turn;
-  whiteGrave.innerHTML = lastState.whiteGraveHTML;
-  blackGrave.innerHTML = lastState.blackGraveHTML;
-  statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
-  selectedSquare = null;
-  createBoard();
-}
-
-function addToGraveyard(piece) {
-  const span = document.createElement('span');
-  span.innerText = pieces[piece];
-  span.style.color = piece === piece.toUpperCase() ? 'white' : 'black';
-  if (piece === piece.toUpperCase()) blackGrave.appendChild(span);
-  else whiteGrave.appendChild(span);
+function checkGameOver() {
+  for(let r=0; r<8; r++) {
+    for(let c=0; c<8; c++) {
+      const p = board[r][c];
+      if(p !== '' && (turn === 'white' ? p === p.toUpperCase() : p === p.toLowerCase())) {
+        for(let tr=0; tr<8; tr++) {
+          for(let tc=0; tc<8; tc++) {
+            if(isValidMove(r, c, tr, tc, p, board[tr][tc], board)) return false;
+          }
+        }
+      }
+    }
+  }
+  return true;
 }
 
 function handleSquareClick(r, c) {
@@ -179,40 +199,52 @@ function handleSquareClick(r, c) {
   const isTeam = piece && (turn === 'white' ? piece === piece.toUpperCase() : piece === piece.toLowerCase());
 
   if (selectedSquare === null) {
-    if (isTeam) {
-      selectedSquare = { r, c };
-      createBoard();
-      boardElement.children[r * 8 + c].classList.add('selected');
-      for (let tr = 0; tr < 8; tr++) {
-        for (let tc = 0; tc < 8; tc++) {
-          if (isValidMove(r, c, tr, tc, board[r][c], board[tr][tc])) {
-            boardElement.children[tr * 8 + tc].classList.add('hint');
-          }
-        }
-      }
-    }
+    if (isTeam) selectPiece(r, c);
   } else {
     const sr = selectedSquare.r, sc = selectedSquare.c, movingPiece = board[sr][sc];
     if (isTeam) {
-      selectedSquare = { r, c };
-      handleSquareClick(r, c);
+      if (sr === r && sc === c) { selectedSquare = null; createBoard(); }
+      else selectPiece(r, c);
       return;
     }
-    if (isValidMove(sr, sc, r, c, movingPiece, board[r][c])) {
-      saveHistory(); // Save BEFORE the move happens
+    if (isValidMove(sr, sc, r, c, movingPiece, board[r][c], board)) {
+      saveHistory();
       if (board[r][c] !== '') addToGraveyard(board[r][c]);
-      board[r][c] = movingPiece;
-      board[sr][sc] = '';
+      board[r][c] = movingPiece; board[sr][sc] = '';
       turn = turn === 'white' ? 'black' : 'white';
+      if(checkGameOver()) {
+        const check = isKingInCheck(turn, board);
+        alert(check ? `CHECKMATE! ${turn === 'black' ? 'White' : 'Black'} wins!` : "STALEMATE! It's a draw.");
+      }
       statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
-      selectedSquare = null;
-      createBoard();
-    } else {
-      selectedSquare = null;
-      createBoard();
-    }
+      selectedSquare = null; createBoard();
+    } else { selectedSquare = null; createBoard(); }
   }
 }
+
+function selectPiece(r, c) {
+  selectedSquare = { r, c };
+  createBoard();
+  boardElement.children[r * 8 + c].classList.add('selected');
+  for (let tr = 0; tr < 8; tr++) for (let tc = 0; tc < 8; tc++) 
+    if (isValidMove(r, c, tr, tc, board[r][c], board[tr][tc], board)) 
+      boardElement.children[tr * 8 + tc].classList.add('hint');
+}
+
+function saveHistory() { history.push({ board: JSON.parse(JSON.stringify(board)), turn: turn, whiteGraveHTML: whiteGrave.innerHTML, blackGraveHTML: blackGrave.innerHTML }); }
+function undoMove() { 
+  if (history.length === 0) return;
+  const last = history.pop();
+  board = last.board; turn = last.turn; whiteGrave.innerHTML = last.whiteGraveHTML; blackGrave.innerHTML = last.blackGraveHTML;
+  statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
+  selectedSquare = null; createBoard();
+}
+function addToGraveyard(piece) {
+  const span = document.createElement('span'); span.innerText = pieces[piece];
+  span.style.color = piece === piece.toUpperCase() ? 'white' : 'black';
+  if (piece === piece.toUpperCase()) blackGrave.appendChild(span); else whiteGrave.appendChild(span);
+}
+
 createBoard();
 </script>
 </body>
