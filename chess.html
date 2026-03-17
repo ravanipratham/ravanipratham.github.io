@@ -14,56 +14,32 @@
             display: flex; flex-direction: column; align-items: center;
             touch-action: manipulation;
         }
-
         header { text-align: center; padding: 15px; display: flex; align-items: center; gap: 10px; }
         .brand-logo { width: 30px; height: 30px; background: #38bdf8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #020617; font-size: 16px; }
         .status { font-size: 1.1rem; font-weight: bold; color: #38bdf8; }
-
         .game-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; gap: 8px; position: relative; }
-
-        /* Trophies */
         .graveyard { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border-radius: 12px; width: 90%; min-height: 35px; display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; border: 1px solid rgba(255,255,255,0.05); font-size: 18px; }
         .graveyard h4 { width: 100%; margin: 0 0 4px 0; font-size: 9px; opacity: 0.5; text-transform: uppercase; }
-
-        /* Board */
         .board {
             display: grid; grid-template-columns: repeat(8, 11.5vw); grid-template-rows: repeat(8, 11.5vw);
             border: 4px solid #334155; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             max-width: 380px; max-height: 380px; position: relative;
         }
         @media (min-width: 600px) { .board { grid-template-columns: repeat(8, 45px); grid-template-rows: repeat(8, 45px); } }
-
         .square { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 7.5vw; cursor: pointer; user-select: none; position: relative; }
         @media (min-width: 600px) { .square { font-size: 30px; } }
-
         .white-sq { background-color: #e2e8f0; }
         .black-sq { background-color: #475569; }
         .p-white { color: #ffffff; text-shadow: 0 0 3px #000; z-index: 2; }
         .p-black { color: #000000; z-index: 2; }
-        
         .selected { background-color: #fbbf24 !important; }
         .check { background-color: #ef4444 !important; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-
         .hint::after { content: ''; width: 25%; height: 25%; background: rgba(0,0,0,0.15); border-radius: 50%; position: absolute; z-index: 1; }
-
-        /* MOVE LOG PANEL */
-        .move-log {
-            width: 90%; max-height: 80px; background: rgba(255,255,255,0.03); 
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-            overflow-y: auto; padding: 10px; margin-top: 10px; font-size: 13px;
-        }
+        .move-log { width: 90%; max-height: 80px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow-y: auto; padding: 10px; margin-top: 10px; font-size: 13px; }
         .move-log h4 { margin: 0 0 5px 0; font-size: 10px; color: #38bdf8; text-transform: uppercase; }
         .log-entry { display: inline-block; margin-right: 10px; color: #94a3b8; font-family: monospace; }
-
-        /* OVERLAY */
-        #game-over-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(8px);
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 100; text-align: center;
-        }
-
+        #game-over-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; }
         .controls { display: flex; gap: 10px; padding: 15px; }
         button { padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 14px; }
         .primary-btn { background: #38bdf8; color: #020617; }
@@ -80,17 +56,14 @@
 
 <div class="game-wrapper">
     <div class="graveyard" id="white-graveyard"><h4>White's Trophies</h4></div>
-    
     <div id="board" class="board">
         <div id="game-over-overlay">
             <h2 id="win-message" style="color:#38bdf8">Checkmate!</h2>
             <p id="win-sub" style="color:#94a3b8">Match Result</p>
-            <button class="primary-btn" onclick="resetGame()">New Match</button>
+            <button class="primary-btn" onclick="location.reload()">New Match</button>
         </div>
     </div>
-    
     <div class="graveyard" id="black-graveyard"><h4>Black's Trophies</h4></div>
-
     <div class="move-log" id="move-log">
         <h4>Move History</h4>
         <div id="log-content"></div>
@@ -127,14 +100,15 @@ let board = [
     ['R','N','B','Q','K','B','N','R']
 ];
 
-let selectedSquare = null;
 let turn = 'white';
 let history = [];
+let selectedSquare = null;
+let enPassantTarget = null; // Tracks square where a pawn can be captured en passant
+let moveFlags = { whiteKing: false, blackKing: false, whiteRookA: false, whiteRookH: false, blackRookA: false, blackRookH: false };
 
 function createBoard() {
     boardElement.querySelectorAll('.square').forEach(s => s.remove());
     const isCheck = isKingInCheck(turn, board);
-    
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const square = document.createElement('div');
@@ -143,9 +117,7 @@ function createBoard() {
             if (piece) {
                 square.innerText = pieces[piece];
                 square.classList.add(piece === piece.toUpperCase() ? 'p-white' : 'p-black');
-                if (piece.toLowerCase() === 'k' && ((turn==='white' && piece==='K') || (turn==='black' && piece==='k')) && isCheck) {
-                    square.classList.add('check');
-                }
+                if (piece.toLowerCase() === 'k' && ((turn==='white' && piece==='K') || (turn==='black' && piece==='k')) && isCheck) square.classList.add('check');
             }
             square.onclick = () => handleSquareClick(r, c);
             boardElement.appendChild(square);
@@ -153,69 +125,16 @@ function createBoard() {
     }
 }
 
-// Convert coordinates to Chess notation (e.g., 0,0 -> a8)
-function toNotation(r, c) {
-    const files = ['a','b','c','d','e','f','g','h'];
-    return files[c] + (8 - r);
-}
-
-function addLog(piece, sr, sc, dr, dc) {
-    const entry = document.createElement('span');
-    entry.className = 'log-entry';
-    const pName = piece.toUpperCase();
-    entry.innerText = `${pName}: ${toNotation(sr, sc)}→${toNotation(dr, dc)}`;
-    logContent.appendChild(entry);
-    document.getElementById('move-log').scrollTop = document.getElementById('move-log').scrollHeight;
-}
-
-function isPathClear(sr, sc, dr, dc, tempBoard) {
-    let rStep = dr === sr ? 0 : (dr > sr ? 1 : -1);
-    let cStep = dc === sc ? 0 : (dc > sc ? 1 : -1);
-    let currR = sr + rStep, currC = sc + cStep;
-    while (currR !== dr || currC !== dc) {
-        if (tempBoard[currR][currC] !== '') return false;
-        currR += rStep; currC += cStep;
-    }
-    return true;
-}
-
-function isValidMove(sr, sc, dr, dc, piece, target, tempBoard) {
-    const isWhite = piece === piece.toUpperCase();
-    const absR = Math.abs(dr - sr), absC = Math.abs(dc - sc), pType = piece.toLowerCase();
-    if (target !== '' && isWhite === (target === target.toUpperCase())) return false;
-    
-    let valid = false;
-    if (pType === 'p') {
-        const dir = isWhite ? -1 : 1;
-        if (sc === dc && dr === sr + dir && target === '') valid = true;
-        else if (sc === dc && sr === (isWhite?6:1) && dr === sr + 2*dir && target === '' && tempBoard[sr+dir][sc] === '') valid = true;
-        else if (absC === 1 && dr === sr + dir && target !== '') valid = true;
-    }
-    else if (pType === 'n') valid = (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
-    else if (pType === 'r') valid = (sr === dr || sc === dc) && isPathClear(sr, sc, dr, dc, tempBoard);
-    else if (pType === 'b') valid = (absR === absC) && isPathClear(sr, sc, dr, dc, tempBoard);
-    else if (pType === 'q') valid = ((sr === dr || sc === dc) || (absR === absC)) && isPathClear(sr, sc, dr, dc, tempBoard);
-    else if (pType === 'k') valid = (absR <= 1 && absC <= 1);
-
-    if (!valid) return false;
-
-    const nextBoard = JSON.parse(JSON.stringify(tempBoard));
-    nextBoard[dr][dc] = nextBoard[sr][sc];
-    nextBoard[sr][sc] = '';
-    return !isKingInCheck(isWhite ? 'white' : 'black', nextBoard);
-}
-
 function isKingInCheck(color, tempBoard) {
     let kPos = null;
     const king = color === 'white' ? 'K' : 'k';
     for(let r=0; r<8; r++) for(let c=0; c<8; c++) if(tempBoard[r][c] === king) kPos = {r,c};
     if(!kPos) return false;
-
     for(let r=0; r<8; r++) {
         for(let c=0; c<8; c++) {
             const p = tempBoard[r][c];
-            if(p !== '' && (color === 'white' ? p === p.toLowerCase() : p.toUpperCase() === p)) {
-               if(canAttack(r, c, kPos.r, kPos.c, p, tempBoard)) return true;
+            if(p !== '' && (color === 'white' ? p === p.toLowerCase() : p === p.toUpperCase())) {
+                if(canAttack(r, c, kPos.r, kPos.c, p, tempBoard)) return true;
             }
         }
     }
@@ -224,13 +143,77 @@ function isKingInCheck(color, tempBoard) {
 
 function canAttack(sr, sc, dr, dc, p, b) {
     const absR = Math.abs(dr - sr), absC = Math.abs(dc - sc), pType = p.toLowerCase();
-    if (pType === 'p') return absC === 1 && dr === sr + (p === p.toUpperCase() ? -1 : 1);
+    const isWhite = p === p.toUpperCase();
+    if (pType === 'p') return absC === 1 && dr === sr + (isWhite ? -1 : 1);
     if (pType === 'n') return (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
     if (pType === 'r') return (sr === dr || sc === dc) && isPathClear(sr, sc, dr, dc, b);
     if (pType === 'b') return (absR === absC) && isPathClear(sr, sc, dr, dc, b);
     if (pType === 'q') return ((sr === dr || sc === dc) || (absR === absC)) && isPathClear(sr, sc, dr, dc, b);
     if (pType === 'k') return (absR <= 1 && absC <= 1);
     return false;
+}
+
+function isPathClear(sr, sc, dr, dc, b) {
+    let rStep = dr === sr ? 0 : (dr > sr ? 1 : -1);
+    let cStep = dc === sc ? 0 : (dc > sc ? 1 : -1);
+    let currR = sr + rStep, currC = sc + cStep;
+    while (currR !== dr || currC !== dc) {
+        if (b[currR][currC] !== '') return false;
+        currR += rStep; currC += cStep;
+    }
+    return true;
+}
+
+function isValidMove(sr, sc, dr, dc, piece, target, b) {
+    const isWhite = piece === piece.toUpperCase();
+    const pType = piece.toLowerCase();
+    const absR = Math.abs(dr - sr), absC = Math.abs(dc - sc);
+    
+    // Basic Capture Check
+    if (target !== '' && isWhite === (target === target.toUpperCase())) return false;
+
+    let valid = false;
+    
+    // Pawn specialized logic
+    if (pType === 'p') {
+        const dir = isWhite ? -1 : 1;
+        // Forward
+        if (sc === dc && dr === sr + dir && target === '') valid = true;
+        // Start move
+        else if (sc === dc && sr === (isWhite?6:1) && dr === sr + 2*dir && target === '' && b[sr+dir][sc] === '') valid = true;
+        // Normal Capture
+        else if (absC === 1 && dr === sr + dir && target !== '') valid = true;
+        // EN PASSANT
+        else if (absC === 1 && dr === sr + dir && target === '' && enPassantTarget && enPassantTarget.r === dr && enPassantTarget.c === dc) valid = true;
+    }
+    else if (pType === 'n') valid = (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
+    else if (pType === 'r') valid = (sr === dr || sc === dc) && isPathClear(sr, sc, dr, dc, b);
+    else if (pType === 'b') valid = (absR === absC) && isPathClear(sr, sc, dr, dc, b);
+    else if (pType === 'q') valid = ((sr === dr || sc === dc) || (absR === absC)) && isPathClear(sr, sc, dr, dc, b);
+    else if (pType === 'k') {
+        if (absR <= 1 && absC <= 1) valid = true;
+        // CASTLING
+        else if (absR === 0 && absC === 2 && !isKingInCheck(isWhite?'white':'black', b)) {
+            if (isWhite && !moveFlags.whiteKing) {
+                if (dc === 6 && !moveFlags.whiteRookH && isPathClear(sr, 4, sr, 7, b)) valid = true;
+                if (dc === 2 && !moveFlags.whiteRookA && isPathClear(sr, 4, sr, 0, b)) valid = true;
+            } else if (!isWhite && !moveFlags.blackKing) {
+                if (dc === 6 && !moveFlags.blackRookH && isPathClear(sr, 4, sr, 7, b)) valid = true;
+                if (dc === 2 && !moveFlags.blackRookA && isPathClear(sr, 4, sr, 0, b)) valid = true;
+            }
+        }
+    }
+
+    if (!valid) return false;
+
+    // Simulation for Check
+    const nextB = JSON.parse(JSON.stringify(b));
+    nextB[dr][dc] = nextB[sr][sc];
+    nextB[sr][sc] = '';
+    // Handle en passant capture removal in simulation
+    if (pType === 'p' && absC === 1 && target === '') nextB[sr][dc] = '';
+
+    return !isKingInCheck(isWhite ? 'white' : 'black', nextB);
 }
 
 function handleSquareClick(r, c) {
@@ -242,45 +225,89 @@ function handleSquareClick(r, c) {
     } else {
         const sr = selectedSquare.r, sc = selectedSquare.c, movingPiece = board[sr][sc];
         if (isTeam) {
-            if (sr === r && sc === c) { selectedSquare = null; createBoard(); }
-            else selectPiece(r, c);
+            selectPiece(r, c);
             return;
         }
-        if (isValidMove(sr, sc, r, c, movingPiece, board[r][c], board)) {
-            addLog(movingPiece, sr, sc, r, c);
-            saveHistory();
-            if (board[r][c] !== '') addToGraveyard(board[r][c]);
-            board[r][c] = movingPiece; board[sr][sc] = '';
-            turn = turn === 'white' ? 'black' : 'white';
-            
-            checkEndState();
-
-            statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
-            selectedSquare = null; createBoard();
-        } else { selectedSquare = null; createBoard(); }
+        if (isValidMove(sr, sc, r, c, movingPiece, piece, board)) {
+            executeMove(sr, sc, r, c, movingPiece);
+        } else {
+            selectedSquare = null;
+            createBoard();
+        }
     }
 }
 
-function checkEndState() {
-    let hasMove = false;
-    outer: for (let r = 0; r < 8; r++) {
+function executeMove(sr, sc, dr, dc, p) {
+    saveHistory();
+    const isWhite = p === p.toUpperCase();
+    const pType = p.toLowerCase();
+    
+    // Record log
+    const entry = document.createElement('span'); entry.className = 'log-entry';
+    entry.innerText = `${p.toUpperCase()}: ${String.fromCharCode(97+sc)}${8-sr}→${String.fromCharCode(97+dc)}${8-dr}`;
+    logContent.appendChild(entry);
+
+    // Handle En Passant Capture removal
+    if (pType === 'p' && Math.abs(dc - sc) === 1 && board[dr][dc] === '') {
+        addToGraveyard(board[sr][dc]);
+        board[sr][dc] = '';
+    } else if (board[dr][dc] !== '') {
+        addToGraveyard(board[dr][dc]);
+    }
+
+    // Handle Castling Rook move
+    if (pType === 'k' && Math.abs(dc - sc) === 2) {
+        if (dc === 6) { board[sr][5] = board[sr][7]; board[sr][7] = ''; }
+        if (dc === 2) { board[sr][3] = board[sr][0]; board[sr][0] = ''; }
+    }
+
+    // Move Piece
+    board[dr][dc] = p;
+    board[sr][sc] = '';
+
+    // PAWN PROMOTION
+    if (pType === 'p' && (dr === 0 || dr === 7)) {
+        board[dr][dc] = isWhite ? 'Q' : 'q';
+    }
+
+    // Set En Passant Target for next turn
+    enPassantTarget = (pType === 'p' && Math.abs(dr - sr) === 2) ? { r: (sr + dr) / 2, c: dc } : null;
+
+    // Update Move Flags
+    if (p === 'K') moveFlags.whiteKing = true;
+    if (p === 'k') moveFlags.blackKing = true;
+    if (p === 'R' && sr === 7 && sc === 0) moveFlags.whiteRookA = true;
+    if (p === 'R' && sr === 7 && sc === 7) moveFlags.whiteRookH = true;
+    if (p === 'r' && sr === 0 && sc === 0) moveFlags.blackRookA = true;
+    if (p === 'r' && sr === 0 && sc === 7) moveFlags.blackRookH = true;
+
+    turn = turn === 'white' ? 'black' : 'white';
+    statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
+    
+    // Check Mate detection
+    if (isGameOver()) {
+        overlay.style.display = 'flex';
+        winSub.innerText = isKingInCheck(turn, board) ? (turn === 'white' ? "Black Wins" : "White Wins") : "Draw by Stalemate";
+    }
+
+    selectedSquare = null;
+    createBoard();
+}
+
+function isGameOver() {
+    for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const p = board[r][c];
             if (p && (turn === 'white' ? p === p.toUpperCase() : p === p.toLowerCase())) {
                 for (let tr = 0; tr < 8; tr++) {
                     for (let tc = 0; tc < 8; tc++) {
-                        if (isValidMove(r, c, tr, tc, p, board[tr][tc], board)) { hasMove = true; break outer; }
+                        if (isValidMove(r, c, tr, tc, p, board[tr][tc], board)) return false;
                     }
                 }
             }
         }
     }
-    if (!hasMove) {
-        const check = isKingInCheck(turn, board);
-        winMsg.innerText = check ? "Checkmate!" : "Stalemate!";
-        winSub.innerText = check ? (turn === 'black' ? "White Wins" : "Black Wins") : "Draw";
-        overlay.style.display = 'flex';
-    }
+    return true;
 }
 
 function selectPiece(r, c) {
@@ -292,22 +319,20 @@ function selectPiece(r, c) {
         if (isValidMove(r, c, tr, tc, board[r][c], board[tr][tc], board)) sqs[tr * 8 + tc].classList.add('hint');
 }
 
-function resetGame() {
-    location.reload();
-}
+function saveHistory() { history.push({ board: JSON.parse(JSON.stringify(board)), turn, moveFlags: JSON.parse(JSON.stringify(moveFlags)), enPassantTarget, log: logContent.innerHTML }); }
 
-function saveHistory() { history.push({ board: JSON.parse(JSON.stringify(board)), turn: turn, whiteGraveHTML: whiteGrave.innerHTML, blackGraveHTML: blackGrave.innerHTML, logHTML: logContent.innerHTML }); }
-function undoMove() { 
-    if (history.length === 0 || overlay.style.display === 'flex') return;
+function undoMove() {
+    if (history.length === 0) return;
     const last = history.pop();
-    board = last.board; turn = last.turn; whiteGrave.innerHTML = last.whiteGraveHTML; blackGrave.innerHTML = last.blackGraveHTML; logContent.innerHTML = last.logHTML;
+    board = last.board; turn = last.turn; moveFlags = last.moveFlags; enPassantTarget = last.enPassantTarget; logContent.innerHTML = last.log;
     statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
     selectedSquare = null; createBoard();
 }
-function addToGraveyard(piece) {
-    const span = document.createElement('span'); span.innerText = pieces[piece];
-    span.style.color = piece === piece.toUpperCase() ? 'white' : 'black';
-    if (piece === piece.toUpperCase()) blackGrave.appendChild(span); else whiteGrave.appendChild(span);
+
+function addToGraveyard(p) {
+    const span = document.createElement('span'); span.innerText = pieces[p];
+    span.style.color = p === p.toUpperCase() ? 'white' : 'black';
+    if (p === p.toUpperCase()) blackGrave.appendChild(span); else whiteGrave.appendChild(span);
 }
 
 createBoard();
