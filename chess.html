@@ -34,37 +34,21 @@
     .board { grid-template-columns: repeat(8, 60px); grid-template-rows: repeat(8, 60px); }
   }
   .square {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 38px;
-    cursor: pointer;
-    user-select: none;
+    width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 38px; cursor: pointer; user-select: none;
     transition: all 0.2s;
   }
   .white-sq { background-color: #e2e8f0; }
   .black-sq { background-color: #475569; }
-  
-  /* Team Colors */
   .p-white { color: #ffffff; text-shadow: 0 0 4px #000; } 
   .p-black { color: #000000; }
-
   .selected { background-color: #fbbf24 !important; }
   .home-btn {
-    margin-top: 25px;
-    padding: 12px 30px;
-    background: #38bdf8;
-    border: none;
-    border-radius: 10px;
-    color: #020617;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    transition: transform 0.2s;
+    margin-top: 25px; padding: 12px 30px;
+    background: #38bdf8; border: none; border-radius: 10px;
+    color: #020617; font-weight: bold; cursor: pointer;
   }
-  .home-btn:hover { transform: scale(1.05); background: #7dd3fc; }
 </style>
 </head>
 <body>
@@ -74,16 +58,11 @@
 <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
 
 <script>
-/* 1. SECURITY CHECK */
 if(localStorage.getItem("loggedIn") !== "true") window.location.replace("login.html");
 
 const boardElement = document.getElementById('board');
 const statusElement = document.getElementById('status');
-
-const pieces = {
-  r: '♜', n: '♞', b: '♝', q: '♛', k: '♚', p: '♟',
-  R: '♜', N: '♞', B: '♝', Q: '♛', K: '♚', P: '♟'
-};
+const pieces = { r:'♜', n:'♞', b:'♝', q:'♛', k:'♚', p:'♟', R:'♜', N:'♞', B:'♝', Q:'♛', K:'♚', P:'♟' };
 
 let board = [
   ['r','n','b','q','k','b','n','r'],
@@ -104,88 +83,84 @@ function createBoard() {
   for (let r = 0; r < 8; r++) {
     for (let c = 0; c < 8; c++) {
       const square = document.createElement('div');
-      square.classList.add('square');
-      square.classList.add((r + c) % 2 === 0 ? 'white-sq' : 'black-sq');
-      
+      square.className = `square ${(r + c) % 2 === 0 ? 'white-sq' : 'black-sq'}`;
       const piece = board[r][c];
       if (piece) {
         square.innerText = pieces[piece];
         square.classList.add(piece === piece.toUpperCase() ? 'p-white' : 'p-black');
       }
-
       square.onclick = () => handleSquareClick(r, c);
       boardElement.appendChild(square);
     }
   }
 }
 
-/* 2. MOVE VALIDATION RULES */
+// HELPER: Check if path is clear for sliding pieces (Rook/Bishop)
+function isPathClear(sr, sc, dr, dc) {
+  let rStep = dr > sr ? 1 : (dr < sr ? -1 : 0);
+  let cStep = dc > sc ? 1 : (dc < sc ? -1 : 0);
+  let currR = sr + rStep;
+  let currC = sc + cStep;
+  while (currR !== dr || currC !== dc) {
+    if (board[currR][currC] !== '') return false;
+    currR += rStep;
+    currC += cStep;
+  }
+  return true;
+}
+
 function isValidMove(sr, sc, dr, dc, piece, target) {
   const isWhite = piece === piece.toUpperCase();
-  const diffR = dr - sr;
-  const diffC = dc - sc;
-  const absR = Math.abs(diffR);
-  const absC = Math.abs(diffC);
+  const absR = Math.abs(dr - sr);
+  const absC = Math.abs(dc - sc);
 
-  // PAWN LOGIC
+  // PAWN
   if (piece.toLowerCase() === 'p') {
-    const direction = isWhite ? -1 : 1;
-    const startRow = isWhite ? 6 : 1;
-
-    // Forward 1
-    if (diffC === 0 && diffR === direction && target === '') return true;
-    // Forward 2
-    if (diffC === 0 && sr === startRow && diffR === 2 * direction && target === '' && board[sr + direction][sc] === '') return true;
-    // Capture
-    if (absC === 1 && diffR === direction && target !== '') return true;
+    const dir = isWhite ? -1 : 1;
+    if (sc === dc && dr === sr + dir && target === '') return true;
+    if (sc === dc && sr === (isWhite?6:1) && dr === sr + 2*dir && target === '' && board[sr+dir][sc] === '') return true;
+    if (absC === 1 && dr === sr + dir && target !== '') return true;
     return false;
   }
 
-  // KNIGHT LOGIC (L-Shape)
-  if (piece.toLowerCase() === 'n') {
-    return (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
+  // KNIGHT
+  if (piece.toLowerCase() === 'n') return (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
+
+  // ROOK (Straight lines)
+  if (piece.toLowerCase() === 'r') {
+    if (sr === dr || sc === dc) return isPathClear(sr, sc, dr, dc);
+    return false;
   }
 
-  // Default: allow other pieces to move anywhere (for now) as long as not on own team
-  return true; 
+  // BISHOP (Diagonals)
+  if (piece.toLowerCase() === 'b') {
+    if (absR === absC) return isPathClear(sr, sc, dr, dc);
+    return false;
+  }
+
+  return true; // Queen/King remain flexible for now
 }
 
-/* 3. CLICK HANDLING */
 function handleSquareClick(r, c) {
   const piece = board[r][c];
-  const isWhitePiece = piece && piece === piece.toUpperCase();
-  const isBlackPiece = piece && piece === piece.toLowerCase();
+  const isTeam = piece && (turn === 'white' ? piece === piece.toUpperCase() : piece === piece.toLowerCase());
 
   if (selectedSquare === null) {
-    if ((turn === 'white' && isWhitePiece) || (turn === 'black' && isBlackPiece)) {
+    if (isTeam) {
       selectedSquare = { r, c };
       refreshBoardWithSelection(r, c);
     }
   } else {
-    const sr = selectedSquare.r;
-    const sc = selectedSquare.c;
+    const sr = selectedSquare.r, sc = selectedSquare.c;
     const movingPiece = board[sr][sc];
-
-    if (sr === r && sc === c) {
-      selectedSquare = null;
-      createBoard();
-      return;
-    }
-
-    const targetPiece = board[r][c];
-    const isTargetSameTeam = targetPiece && (
-      (turn === 'white' && targetPiece === targetPiece.toUpperCase()) ||
-      (turn === 'black' && targetPiece === targetPiece.toLowerCase())
-    );
-
-    if (isTargetSameTeam) {
+    
+    if (isTeam) { // Switch selection
       selectedSquare = { r, c };
       refreshBoardWithSelection(r, c);
       return;
     }
 
-    // CHECK RULES
-    if (isValidMove(sr, sc, r, c, movingPiece, targetPiece)) {
+    if (isValidMove(sr, sc, r, c, movingPiece, board[r][c])) {
       board[r][c] = movingPiece;
       board[sr][sc] = '';
       turn = turn === 'white' ? 'black' : 'white';
@@ -198,8 +173,7 @@ function handleSquareClick(r, c) {
 
 function refreshBoardWithSelection(row, col) {
   createBoard();
-  const index = row * 8 + col;
-  boardElement.children[index].classList.add('selected');
+  boardElement.children[row * 8 + col].classList.add('selected');
 }
 
 createBoard();
