@@ -9,35 +9,23 @@
     background: radial-gradient(circle at top, #0f172a, #020617);
     color: white;
     font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; margin: 0;
   }
   .status { 
-    margin-bottom: 15px; 
-    font-size: 1.5rem; 
-    font-weight: bold; 
-    color: #38bdf8;
+    margin-bottom: 15px; font-size: 1.5rem; font-weight: bold; color: #38bdf8;
     text-shadow: 0 0 10px rgba(56,189,248,0.3);
   }
   .board {
-    display: grid;
-    grid-template-columns: repeat(8, 40px);
-    grid-template-rows: repeat(8, 40px);
-    border: 8px solid #334155;
-    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    display: grid; grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(8, 40px);
+    border: 8px solid #334155; box-shadow: 0 0 30px rgba(0,0,0,0.6);
   }
   @media (min-width: 600px) {
     .board { grid-template-columns: repeat(8, 60px); grid-template-rows: repeat(8, 60px); }
   }
   .square {
-    width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
-    font-size: 38px; cursor: pointer; user-select: none;
-    transition: all 0.2s;
+    width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;
+    font-size: 38px; cursor: pointer; user-select: none; transition: all 0.2s;
   }
   .white-sq { background-color: #e2e8f0; }
   .black-sq { background-color: #475569; }
@@ -45,9 +33,8 @@
   .p-black { color: #000000; }
   .selected { background-color: #fbbf24 !important; }
   .home-btn {
-    margin-top: 25px; padding: 12px 30px;
-    background: #38bdf8; border: none; border-radius: 10px;
-    color: #020617; font-weight: bold; cursor: pointer;
+    margin-top: 25px; padding: 12px 30px; background: #38bdf8; border: none;
+    border-radius: 10px; color: #020617; font-weight: bold; cursor: pointer;
   }
 </style>
 </head>
@@ -95,7 +82,6 @@ function createBoard() {
   }
 }
 
-// HELPER: Check if path is clear for sliding pieces (Rook/Bishop)
 function isPathClear(sr, sc, dr, dc) {
   let rStep = dr > sr ? 1 : (dr < sr ? -1 : 0);
   let cStep = dc > sc ? 1 : (dc < sc ? -1 : 0);
@@ -113,9 +99,10 @@ function isValidMove(sr, sc, dr, dc, piece, target) {
   const isWhite = piece === piece.toUpperCase();
   const absR = Math.abs(dr - sr);
   const absC = Math.abs(dc - sc);
+  const pType = piece.toLowerCase();
 
   // PAWN
-  if (piece.toLowerCase() === 'p') {
+  if (pType === 'p') {
     const dir = isWhite ? -1 : 1;
     if (sc === dc && dr === sr + dir && target === '') return true;
     if (sc === dc && sr === (isWhite?6:1) && dr === sr + 2*dir && target === '' && board[sr+dir][sc] === '') return true;
@@ -124,21 +111,21 @@ function isValidMove(sr, sc, dr, dc, piece, target) {
   }
 
   // KNIGHT
-  if (piece.toLowerCase() === 'n') return (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
+  if (pType === 'n') return (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
 
-  // ROOK (Straight lines)
-  if (piece.toLowerCase() === 'r') {
-    if (sr === dr || sc === dc) return isPathClear(sr, sc, dr, dc);
-    return false;
-  }
+  // ROOK
+  if (pType === 'r') return (sr === dr || sc === dc) && isPathClear(sr, sc, dr, dc);
 
-  // BISHOP (Diagonals)
-  if (piece.toLowerCase() === 'b') {
-    if (absR === absC) return isPathClear(sr, sc, dr, dc);
-    return false;
-  }
+  // BISHOP
+  if (pType === 'b') return (absR === absC) && isPathClear(sr, sc, dr, dc);
 
-  return true; // Queen/King remain flexible for now
+  // QUEEN (Rook + Bishop)
+  if (pType === 'q') return ((sr === dr || sc === dc) || (absR === absC)) && isPathClear(sr, sc, dr, dc);
+
+  // KING (Any direction, only 1 square)
+  if (pType === 'k') return (absR <= 1 && absC <= 1);
+
+  return false;
 }
 
 function handleSquareClick(r, c) {
