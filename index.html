@@ -2,186 +2,288 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pratham Apps Hub</title>
+<title>Pratham Apps Hub | Premium</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
+/* 1. DYNAMIC BACKGROUND & FONTS */
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #0f172a, #020617);
-  font-family: Arial, sans-serif;
+  background-color: #020617;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   color: white;
-  overflow-x: hidden;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
 }
 
+/* Floating animated glowing blobs */
+body::before, body::after {
+  content: "";
+  position: fixed;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  filter: blur(90px);
+  z-index: -1;
+  opacity: 0.35;
+  animation: move 25s infinite alternate ease-in-out;
+}
+
+body::before {
+  background: #38bdf8;
+  top: -150px;
+  left: -150px;
+}
+
+body::after {
+  background: #6366f1;
+  bottom: -150px;
+  right: -150px;
+  animation-delay: -7s;
+}
+
+@keyframes move {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(120px, 120px) scale(1.3); }
+}
+
+/* 2. HEADER & PERSONALIZATION */
 header {
   text-align: center;
-  padding: 40px 20px;
-  animation: fadeDown 1.2s ease;
+  padding: 80px 20px 30px;
+}
+
+#greeting-box {
+  margin-bottom: 15px;
+  color: #38bdf8;
+  font-weight: 600;
+  font-size: 1.1rem;
+  opacity: 0;
+  animation: fadeIn 1.2s forwards 0.5s;
+  letter-spacing: 1px;
 }
 
 header h1 {
-  font-size: 32px;
-  margin-bottom: 8px;
+  font-size: 3.8rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -3px;
 }
 
 header p {
-  opacity: 0.7;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 0.85rem;
+  margin-top: 8px;
 }
 
+/* 3. GRID CONTAINER */
 .container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  padding: 30px;
-  animation: fadeUp 1.2s ease;
-  flex: 1; /* Pushes footer to the bottom */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  padding: 30px 40px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 90%;
+  flex: 1;
 }
 
+/* 4. PREMIUM GLASS CARDS */
 .card {
-  background: #020617;
-  border-radius: 16px;
-  padding: 25px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 35px;
+  padding: 45px 35px;
   text-align: center;
-  box-shadow: 0 0 20px rgba(56,189,248,0.15);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  opacity: 0;
+  transform: translateY(40px);
+  animation: cardFadeIn 0.8s forwards;
+}
+
+/* Staggered load for cards */
+.card:nth-child(1) { animation-delay: 0.2s; }
+.card:nth-child(2) { animation-delay: 0.3s; }
+.card:nth-child(3) { animation-delay: 0.4s; }
+.card:nth-child(4) { animation-delay: 0.5s; }
+
+@keyframes cardFadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
 }
 
 .card:hover {
-  transform: translateY(-8px) scale(1.03);
-  box-shadow: 0 0 35px rgba(56,189,248,0.35);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-.card span {
-  font-size: 48px;
-  display: block;
-  margin-bottom: 10px;
+.icon-box {
+  font-size: 55px;
+  margin-bottom: 25px;
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.03);
+  width: 110px;
+  height: 110px;
+  line-height: 110px;
+  border-radius: 30px;
+  transition: 0.4s;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card:hover .icon-box {
+  transform: rotate(-5deg) scale(1.1);
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.2);
 }
 
 .card h3 {
-  margin: 12px 0 8px;
+  font-size: 1.7rem;
+  margin: 10px 0;
+  font-weight: 700;
+  color: #f1f5f9;
 }
 
 .card p {
-  font-size: 14px;
-  opacity: 0.8;
-  margin-bottom: 15px;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin-bottom: 35px;
+  line-height: 1.6;
 }
 
+/* 5. ACTION BUTTONS */
 .card button {
-  padding: 10px 22px;
+  width: 100%;
+  padding: 16px;
   border: none;
-  border-radius: 10px;
-  background: #38bdf8;
+  border-radius: 18px;
+  background: white;
   color: #020617;
-  font-weight: bold;
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s;
 }
 
 .card button:hover {
-  background: #7dd3fc;
+  background: #38bdf8;
+  color: white;
+  box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.5);
 }
 
+/* 6. FOOTER */
 footer {
   text-align: center;
-  padding: 30px;
-  font-size: 14px;
+  padding: 50px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-text {
+  color: #475569;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
 }
 
 .logout-btn {
   background: transparent;
   color: #ef4444;
-  border: 1px solid #ef4444;
-  padding: 6px 12px;
-  border-radius: 6px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
-  margin-top: 15px;
-  font-size: 12px;
-  transition: all 0.3s;
+  transition: 0.3s;
 }
 
 .logout-btn:hover {
   background: #ef4444;
   color: white;
-}
-
-/* Animations */
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  border-color: #ef4444;
 }
 </style>
-
-<script>
-  /* PROTECT PAGE: 
-     Checks login status before the rest of the page loads. 
-  */
-  if(localStorage.getItem("loggedIn") !== "true"){
-    window.location.replace("login.html");
-  }
-</script>
 </head>
 
 <body>
 
 <header>
-  <h1>🚀 Pratham Apps Hub</h1>
-  <p>Calculator • O/X Game • Flappy Bird • Chess</p>
+  <div id="greeting-box">
+    <span id="time-greeting">Hello</span>, <span id="user-name" style="color: white; text-transform: capitalize;">Explorer</span>!
+  </div>
+  <h1>PRATHAM APPS</h1>
+  <p>Minimalist • Powerful • Secure</p>
 </header>
 
 <div class="container">
-
   <div class="card">
-    <span>🧮</span>
+    <div class="icon-box">🧮</div>
     <h3>Calculator</h3>
-    <p>Smart & clean calculator</p>
-    <button onclick="location.href='calculator.html'">Open</button>
+    <p>A premium glass tool for your daily math needs.</p>
+    <button onclick="location.href='calculator.html'">Launch App</button>
   </div>
 
   <div class="card">
-    <span>❌⭕</span>
-    <h3>O / X Game</h3>
-    <p>2 Player & VS Computer</p>
-    <button onclick="location.href='tictactoe.html'">Play</button>
+    <div class="icon-box">❌</div>
+    <h3>Tic Tac Toe</h3>
+    <p>Think you can beat the invincible AI?</p>
+    <button onclick="location.href='tictactoe.html'">Play Game</button>
   </div>
 
   <div class="card">
-    <span>🐦</span>
+    <div class="icon-box">🐦</div>
     <h3>Flappy Bird</h3>
-    <p>Easy • Medium • Hard</p>
-    <button onclick="location.href='flappy.html'">Start</button>
+    <p>Test your reflexes across three difficulties.</p>
+    <button onclick="location.href='flappy.html'">Start Flight</button>
   </div>
 
   <div class="card">
-    <span>♟️</span>
-    <h3>Chess</h3>
-    <p>Classic 2-Player Strategy</p>
-    <button onclick="location.href='chess.html'">Play</button>
+    <div class="icon-box">♟️</div>
+    <h3>Pro Chess</h3>
+    <p>Play with full rules, move hints, and undo.</p>
+    <button onclick="location.href='chess.html'">Enter Match</button>
   </div>
-
 </div>
 
 <footer>
-  <p>Made by Pratham ❤️</p>
+  <p class="footer-text">Handcrafted by Pratham &copy; 2026</p>
   <button class="logout-btn" onclick="logout()">Logout Session</button>
 </footer>
 
 <script>
-function logout(){
-  localStorage.removeItem("loggedIn");
-  localStorage.removeItem("user");
-  window.location.replace("login.html");
-}
+  // SECURITY & PERSONALIZATION
+  if(localStorage.getItem("loggedIn") !== "true"){
+    window.location.replace("login.html");
+  } else {
+    // Get Username
+    const user = localStorage.getItem("user") || "Pratham";
+    document.getElementById("user-name").innerText = user;
+
+    // Set Time Greeting
+    const hours = new Date().getHours();
+    let message = "Good evening";
+    if (hours < 12) message = "Good morning";
+    else if (hours < 18) message = "Good afternoon";
+    document.getElementById("time-greeting").innerText = message;
+  }
+
+  function logout(){
+    localStorage.clear();
+    window.location.replace("login.html");
+  }
 </script>
 
 </body>
