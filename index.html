@@ -2,218 +2,137 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Pratham Apps Hub | Premium</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pratham Apps Hub</title>
 <style>
-/* 1. DYNAMIC BACKGROUND & FONTS */
-body {
+/* 1. MOBILE LOCKDOWN */
+html, body {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden; /* Stops horizontal moving/wobbling */
   background-color: #020617;
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   color: white;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
   position: relative;
+  /* Smooths out mobile scrolling */
+  -webkit-overflow-scrolling: touch; 
+  touch-action: manipulation;
 }
 
-/* Floating animated glowing blobs */
+/* 2. BACKGROUND BLOBS (Mobile Optimized) */
 body::before, body::after {
   content: "";
   position: fixed;
-  width: 450px;
-  height: 450px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
-  filter: blur(90px);
+  filter: blur(80px);
   z-index: -1;
-  opacity: 0.35;
-  animation: move 25s infinite alternate ease-in-out;
+  opacity: 0.25;
+  pointer-events: none; /* Prevents blobs from interfering with clicks */
+  animation: move 20s infinite alternate;
 }
 
-body::before {
-  background: #38bdf8;
-  top: -150px;
-  left: -150px;
-}
-
-body::after {
-  background: #6366f1;
-  bottom: -150px;
-  right: -150px;
-  animation-delay: -7s;
-}
+body::before { background: #38bdf8; top: -50px; left: -50px; }
+body::after { background: #6366f1; bottom: -50px; right: -50px; }
 
 @keyframes move {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(120px, 120px) scale(1.3); }
+  from { transform: translate(0, 0); }
+  to { transform: translate(50px, 50px); }
 }
 
-/* 2. HEADER & PERSONALIZATION */
 header {
   text-align: center;
-  padding: 80px 20px 30px;
+  padding: 60px 20px 20px;
+  box-sizing: border-box;
 }
 
 #greeting-box {
-  margin-bottom: 15px;
   color: #38bdf8;
   font-weight: 600;
-  font-size: 1.1rem;
-  opacity: 0;
-  animation: fadeIn 1.2s forwards 0.5s;
-  letter-spacing: 1px;
+  margin-bottom: 10px;
 }
 
 header h1 {
-  font-size: 3.8rem;
-  font-weight: 800;
+  font-size: 2.5rem; /* Scaled down for mobile screens */
   margin: 0;
-  background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+  background: linear-gradient(135deg, #fff, #94a3b8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: -3px;
+  letter-spacing: -1px;
 }
 
-header p {
-  color: #64748b;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 4px;
-  font-size: 0.85rem;
-  margin-top: 8px;
-}
-
-/* 3. GRID CONTAINER */
+/* 3. RESPONSIVE GRID */
 .container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
-  padding: 30px 40px 60px;
+  /* Standard 1 column on mobile, 2+ on tablets */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  width: 90%;
-  flex: 1;
+  box-sizing: border-box; /* Crucial: padding doesn't widen the container */
 }
 
-/* 4. PREMIUM GLASS CARDS */
+/* 4. GLASS CARDS */
 .card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 35px;
-  padding: 45px 35px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: 30px;
   text-align: center;
-  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  opacity: 0;
-  transform: translateY(40px);
-  animation: cardFadeIn 0.8s forwards;
+  transition: transform 0.3s ease;
+  /* Prevents selection highlighting on tap */
+  -webkit-tap-highlight-color: transparent; 
 }
 
-/* Staggered load for cards */
-.card:nth-child(1) { animation-delay: 0.2s; }
-.card:nth-child(2) { animation-delay: 0.3s; }
-.card:nth-child(3) { animation-delay: 0.4s; }
-.card:nth-child(4) { animation-delay: 0.5s; }
-
-@keyframes cardFadeIn {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
-
-.card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(56, 189, 248, 0.4);
-  transform: translateY(-12px) scale(1.03);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+.card:active {
+  transform: scale(0.98); /* Tactile feedback on mobile tap */
 }
 
 .icon-box {
-  font-size: 55px;
-  margin-bottom: 25px;
+  font-size: 40px;
+  margin-bottom: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+  border-radius: 22px;
   display: inline-block;
-  background: rgba(255, 255, 255, 0.03);
-  width: 110px;
-  height: 110px;
-  line-height: 110px;
-  border-radius: 30px;
-  transition: 0.4s;
-  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.card:hover .icon-box {
-  transform: rotate(-5deg) scale(1.1);
-  background: rgba(56, 189, 248, 0.15);
-  border-color: rgba(56, 189, 248, 0.2);
-}
+.card h3 { font-size: 1.4rem; margin: 10px 0; }
+.card p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 25px; }
 
-.card h3 {
-  font-size: 1.7rem;
-  margin: 10px 0;
-  font-weight: 700;
-  color: #f1f5f9;
-}
-
-.card p {
-  color: #94a3b8;
-  font-size: 0.95rem;
-  margin-bottom: 35px;
-  line-height: 1.6;
-}
-
-/* 5. ACTION BUTTONS */
 .card button {
   width: 100%;
-  padding: 16px;
+  padding: 14px;
   border: none;
-  border-radius: 18px;
+  border-radius: 14px;
   background: white;
   color: #020617;
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s;
 }
 
-.card button:hover {
-  background: #38bdf8;
-  color: white;
-  box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.5);
-}
-
-/* 6. FOOTER */
+/* 5. FOOTER */
 footer {
   text-align: center;
-  padding: 50px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.footer-text {
-  color: #475569;
-  font-size: 0.9rem;
-  margin-bottom: 15px;
+  padding: 40px 20px;
 }
 
 .logout-btn {
   background: transparent;
   color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  padding: 8px 18px;
-  border-radius: 10px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.logout-btn:hover {
-  background: #ef4444;
-  color: white;
-  border-color: #ef4444;
+  border: 1px solid rgba(239,68,68,0.3);
+  padding: 8px 20px;
+  border-radius: 8px;
 }
 </style>
 </head>
@@ -225,58 +144,46 @@ footer {
     <span id="time-greeting">Hello</span>, <span id="user-name" style="color: white; text-transform: capitalize;">Explorer</span>!
   </div>
   <h1>PRATHAM APPS</h1>
-  <p>Minimalist • Powerful • Secure</p>
 </header>
 
 <div class="container">
   <div class="card">
     <div class="icon-box">🧮</div>
     <h3>Calculator</h3>
-    <p>A premium glass tool for your daily math needs.</p>
-    <button onclick="location.href='calculator.html'">Launch App</button>
+    <button onclick="location.href='calculator.html'">Launch</button>
   </div>
 
   <div class="card">
     <div class="icon-box">❌</div>
     <h3>Tic Tac Toe</h3>
-    <p>Think you can beat the invincible AI?</p>
-    <button onclick="location.href='tictactoe.html'">Play Game</button>
+    <button onclick="location.href='tictactoe.html'">Play</button>
   </div>
 
   <div class="card">
     <div class="icon-box">🐦</div>
     <h3>Flappy Bird</h3>
-    <p>Test your reflexes across three difficulties.</p>
-    <button onclick="location.href='flappy.html'">Start Flight</button>
+    <button onclick="location.href='flappy.html'">Fly</button>
   </div>
 
   <div class="card">
     <div class="icon-box">♟️</div>
     <h3>Pro Chess</h3>
-    <p>Play with full rules, move hints, and undo.</p>
-    <button onclick="location.href='chess.html'">Enter Match</button>
+    <button onclick="location.href='chess.html'">Enter</button>
   </div>
 </div>
 
 <footer>
-  <p class="footer-text">Handcrafted by Pratham &copy; 2026</p>
-  <button class="logout-btn" onclick="logout()">Logout Session</button>
+  <button class="logout-btn" onclick="logout()">Logout</button>
 </footer>
 
 <script>
-  // SECURITY & PERSONALIZATION
   if(localStorage.getItem("loggedIn") !== "true"){
     window.location.replace("login.html");
   } else {
-    // Get Username
-    const user = localStorage.getItem("user") || "Pratham";
+    const user = localStorage.getItem("user") || "User";
     document.getElementById("user-name").innerText = user;
-
-    // Set Time Greeting
     const hours = new Date().getHours();
-    let message = "Good evening";
-    if (hours < 12) message = "Good morning";
-    else if (hours < 18) message = "Good afternoon";
+    let message = hours < 12 ? "Good morning" : hours < 18 ? "Good afternoon" : "Good evening";
     document.getElementById("time-greeting").innerText = message;
   }
 
