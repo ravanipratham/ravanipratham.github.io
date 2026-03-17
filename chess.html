@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   body {
-    background: #0f172a;
+    background: radial-gradient(circle at top, #0f172a, #020617);
     color: white;
     font-family: Arial, sans-serif;
     display: flex;
@@ -16,13 +16,19 @@
     min-height: 100vh;
     margin: 0;
   }
-  .status { margin-bottom: 15px; font-size: 1.5rem; font-weight: bold; color: #38bdf8; }
+  .status { 
+    margin-bottom: 15px; 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    color: #38bdf8;
+    text-shadow: 0 0 10px rgba(56,189,248,0.3);
+  }
   .board {
     display: grid;
     grid-template-columns: repeat(8, 40px);
     grid-template-rows: repeat(8, 40px);
     border: 8px solid #334155;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    box-shadow: 0 0 30px rgba(0,0,0,0.6);
   }
   @media (min-width: 600px) {
     .board { grid-template-columns: repeat(8, 60px); grid-template-rows: repeat(8, 60px); }
@@ -33,40 +39,42 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 35px;
+    font-size: 38px;
     cursor: pointer;
     user-select: none;
-    transition: background 0.2s;
+    transition: all 0.2s;
   }
-  /* Updated Colors for better visibility */
   .white-sq { background-color: #e2e8f0; }
   .black-sq { background-color: #475569; }
   
-  /* Piece colors */
-  .p-white { color: #ffffff; text-shadow: 0 0 3px #000; } /* White pieces with outline */
-  .p-black { color: #000000; } /* Black pieces */
+  /* Team Colors */
+  .p-white { color: #ffffff; text-shadow: 0 0 4px #000; } 
+  .p-black { color: #000000; }
 
   .selected { background-color: #fbbf24 !important; }
   .home-btn {
-    margin-top: 20px;
-    padding: 10px 25px;
+    margin-top: 25px;
+    padding: 12px 30px;
     background: #38bdf8;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     color: #020617;
     font-weight: bold;
+    font-size: 16px;
     cursor: pointer;
+    transition: transform 0.2s;
   }
+  .home-btn:hover { transform: scale(1.05); background: #7dd3fc; }
 </style>
 </head>
 <body>
 
 <div class="status" id="status">White's Turn</div>
-<div class="board" id="board"></div>
+<div id="board" class="board"></div>
 <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
 
 <script>
-// Check login status (Security check)
+/* 1. SECURITY CHECK */
 if(localStorage.getItem("loggedIn") !== "true") window.location.replace("login.html");
 
 const boardElement = document.getElementById('board');
@@ -102,7 +110,6 @@ function createBoard() {
       const piece = board[r][c];
       if (piece) {
         square.innerText = pieces[piece];
-        // Apply color based on case (Upper = White, Lower = Black)
         square.classList.add(piece === piece.toUpperCase() ? 'p-white' : 'p-black');
       }
 
@@ -112,31 +119,59 @@ function createBoard() {
   }
 }
 
+/* 2. MOVE VALIDATION RULES */
+function isValidMove(sr, sc, dr, dc, piece, target) {
+  const isWhite = piece === piece.toUpperCase();
+  const diffR = dr - sr;
+  const diffC = dc - sc;
+  const absR = Math.abs(diffR);
+  const absC = Math.abs(diffC);
+
+  // PAWN LOGIC
+  if (piece.toLowerCase() === 'p') {
+    const direction = isWhite ? -1 : 1;
+    const startRow = isWhite ? 6 : 1;
+
+    // Forward 1
+    if (diffC === 0 && diffR === direction && target === '') return true;
+    // Forward 2
+    if (diffC === 0 && sr === startRow && diffR === 2 * direction && target === '' && board[sr + direction][sc] === '') return true;
+    // Capture
+    if (absC === 1 && diffR === direction && target !== '') return true;
+    return false;
+  }
+
+  // KNIGHT LOGIC (L-Shape)
+  if (piece.toLowerCase() === 'n') {
+    return (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
+  }
+
+  // Default: allow other pieces to move anywhere (for now) as long as not on own team
+  return true; 
+}
+
+/* 3. CLICK HANDLING */
 function handleSquareClick(r, c) {
   const piece = board[r][c];
   const isWhitePiece = piece && piece === piece.toUpperCase();
   const isBlackPiece = piece && piece === piece.toLowerCase();
 
-  // 1. SELECTING A PIECE
   if (selectedSquare === null) {
     if ((turn === 'white' && isWhitePiece) || (turn === 'black' && isBlackPiece)) {
       selectedSquare = { r, c };
       refreshBoardWithSelection(r, c);
     }
-  } 
-  // 2. MOVING OR DESELECTING
-  else {
+  } else {
     const sr = selectedSquare.r;
     const sc = selectedSquare.c;
+    const movingPiece = board[sr][sc];
 
-    // Deselect if clicking the same square
     if (sr === r && sc === c) {
       selectedSquare = null;
       createBoard();
       return;
     }
 
-    // BLOCK CAPTURING OWN PIECES
     const targetPiece = board[r][c];
     const isTargetSameTeam = targetPiece && (
       (turn === 'white' && targetPiece === targetPiece.toUpperCase()) ||
@@ -144,21 +179,20 @@ function handleSquareClick(r, c) {
     );
 
     if (isTargetSameTeam) {
-      // Switch selection to the new piece of the same team
       selectedSquare = { r, c };
       refreshBoardWithSelection(r, c);
       return;
     }
 
-    // PERFORM MOVE
-    board[r][c] = board[sr][sc];
-    board[sr][sc] = '';
-
-    // Switch turn
-    turn = turn === 'white' ? 'black' : 'white';
-    statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
-    selectedSquare = null;
-    createBoard();
+    // CHECK RULES
+    if (isValidMove(sr, sc, r, c, movingPiece, targetPiece)) {
+      board[r][c] = movingPiece;
+      board[sr][sc] = '';
+      turn = turn === 'white' ? 'black' : 'white';
+      statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
+      selectedSquare = null;
+      createBoard();
+    }
   }
 }
 
