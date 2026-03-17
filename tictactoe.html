@@ -2,184 +2,243 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Tic Tac Toe</title>
+<title>Pro Tic Tac Toe | Pratham Apps</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+  /* 1. DYNAMIC THEME */
   body {
-    background: #0f172a;
+    margin: 0;
+    background: #020617;
+    background: radial-gradient(circle at bottom right, #1e1b4b, #020617);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
     color: white;
-    font-family: Arial, sans-serif;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    overflow: hidden;
   }
-  .container { text-align: center; }
-  button {
-    padding: 10px;
-    margin: 6px;
+
+  .container {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 35px;
+    text-align: center;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    width: 90%;
+    max-width: 400px;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* 2. MENU UI */
+  .menu button {
+    width: 100%;
+    padding: 16px;
+    margin: 10px 0;
     border: none;
-    border-radius: 8px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 16px;
+    transition: 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
-  .menu button { width: 200px; background: #38bdf8; }
-  .home-btn { background: #64748b; color: white; }
+
+  .menu button:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: #38bdf8;
+    transform: translateY(-2px);
+  }
+
+  /* 3. GAME BOARD */
   .board {
     display: grid;
-    grid-template-columns: repeat(3, 80px);
-    gap: 5px;
-    justify-content: center;
-    margin: 15px auto;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 25px 0;
   }
+
   .cell {
-    width: 80px;
-    height: 80px;
-    font-size: 32px;
-    border-radius: 6px;
+    aspect-ratio: 1/1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    font-size: 2.5rem;
+    font-weight: 800;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #38bdf8;
   }
+
+  .cell:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: scale(1.02);
+  }
+
+  .cell.taken { cursor: default; }
+  
+  /* X and O Colors */
+  .cell-x { color: #38bdf8; text-shadow: 0 0 15px rgba(56,189,248,0.5); }
+  .cell-o { color: #f87171; text-shadow: 0 0 15px rgba(248,113,113,0.5); }
+
+  /* 4. CONTROLS */
+  .controls button {
+    padding: 12px 25px;
+    margin: 5px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .restart-btn { background: #38bdf8; color: #020617; }
+  .home-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; }
+  
   .hidden { display: none; }
+  #status { color: #94a3b8; font-size: 1.1rem; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 
 <div class="container">
-
-  <!-- Mode Menu -->
-  <div id="menu">
-    <h2>Select Mode</h2>
-    <button onclick="startGame('player')">👥 2 Player</button><br>
-    <button onclick="startGame('computer')">🤖 Vs Computer</button><br>
-    <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
+  <div id="menu" class="menu">
+    <h2>Tic Tac Toe</h2>
+    <button onclick="startGame('player')">👥 Local 2 Player</button>
+    <button onclick="startGame('computer')">🤖 VS Impossible AI</button>
+    <button class="home-btn" style="width:100%" onclick="location.href='index.html'">⬅ Back to Hub</button>
   </div>
 
-  <!-- Game -->
   <div id="game" class="hidden">
-    <h2 id="status">Player X Turn</h2>
-
+    <div id="status">Your Turn (X)</div>
     <div class="board">
-      <button class="cell" onclick="move(0)"></button>
-      <button class="cell" onclick="move(1)"></button>
-      <button class="cell" onclick="move(2)"></button>
-      <button class="cell" onclick="move(3)"></button>
-      <button class="cell" onclick="move(4)"></button>
-      <button class="cell" onclick="move(5)"></button>
-      <button class="cell" onclick="move(6)"></button>
-      <button class="cell" onclick="move(7)"></button>
-      <button class="cell" onclick="move(8)"></button>
+      <div class="cell" onclick="handleMove(0)"></div>
+      <div class="cell" onclick="handleMove(1)"></div>
+      <div class="cell" onclick="handleMove(2)"></div>
+      <div class="cell" onclick="handleMove(3)"></div>
+      <div class="cell" onclick="handleMove(4)"></div>
+      <div class="cell" onclick="handleMove(5)"></div>
+      <div class="cell" onclick="handleMove(6)"></div>
+      <div class="cell" onclick="handleMove(7)"></div>
+      <div class="cell" onclick="handleMove(8)"></div>
     </div>
-
-    <button onclick="resetGame()">🔄 Restart</button><br><br>
-    <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
+    <div class="controls">
+      <button class="restart-btn" onclick="resetGame()">🔄 Restart</button>
+      <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
+    </div>
   </div>
-
 </div>
 
 <script>
-let board = ["","","","","","","","",""];
-let currentPlayer = "X";
-let mode = "";
-let gameOver = false;
+  // Security Check
+  if(localStorage.getItem("loggedIn") !== "true") window.location.replace("login.html");
 
-const cells = document.querySelectorAll(".cell");
-const statusText = document.getElementById("status");
+  let board = ["","","","","","","","",""];
+  let currentPlayer = "X";
+  let mode = "";
+  let gameOver = false;
 
-const wins = [
-  [0,1,2],[3,4,5],[6,7,8],
-  [0,3,6],[1,4,7],[2,5,8],
-  [0,4,8],[2,4,6]
-];
+  const cells = document.querySelectorAll(".cell");
+  const statusText = document.getElementById("status");
 
-function startGame(m){
-  mode = m;
-  document.getElementById("menu").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-}
+  const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 
-function move(i){
-  if(board[i] || gameOver) return;
-
-  board[i] = currentPlayer;
-  cells[i].innerText = currentPlayer;
-
-  if(checkWin(board, currentPlayer)){
-    statusText.innerText = `🎉 ${currentPlayer} Wins!`;
-    gameOver = true;
-    return;
+  function startGame(m){
+    mode = m;
+    document.getElementById("menu").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
   }
 
-  if(board.every(c => c)){
-    statusText.innerText = "😐 Draw!";
-    gameOver = true;
-    return;
-  }
+  function handleMove(i){
+    if(board[i] || gameOver) return;
 
-  currentPlayer = currentPlayer === "X" ? "O" : "X";
-  statusText.innerText = `Player ${currentPlayer} Turn`;
+    makeMove(i, currentPlayer);
 
-  if(mode === "computer" && currentPlayer === "O"){
-    setTimeout(() => {
-      let bestMove = minimax(board, "O").index;
-      move(bestMove);
-    }, 400);
-  }
-}
-
-/* ---------- AI LOGIC ---------- */
-function minimax(newBoard, player){
-  let avail = newBoard.map((v,i)=>v===""?i:null).filter(v=>v!==null);
-
-  if(checkWin(newBoard,"X")) return {score:-10};
-  if(checkWin(newBoard,"O")) return {score:10};
-  if(avail.length === 0) return {score:0};
-
-  let moves = [];
-
-  for(let i of avail){
-    let move = {};
-    move.index = i;
-    newBoard[i] = player;
-
-    let result = minimax(newBoard, player==="O"?"X":"O");
-    move.score = result.score;
-
-    newBoard[i] = "";
-    moves.push(move);
-  }
-
-  let best;
-  if(player === "O"){
-    let max = -10000;
-    for(let m of moves){
-      if(m.score > max){
-        max = m.score;
-        best = m;
-      }
-    }
-  } else {
-    let min = 10000;
-    for(let m of moves){
-      if(m.score < min){
-        min = m.score;
-        best = m;
-      }
+    if(!gameOver && mode === "computer" && currentPlayer === "O"){
+      setTimeout(() => {
+        let best = minimax(board, "O").index;
+        makeMove(best, "O");
+      }, 500);
     }
   }
-  return best;
-}
 
-function checkWin(b,p){
-  return wins.some(w => w.every(i => b[i] === p));
-}
+  function makeMove(i, p){
+    board[i] = p;
+    cells[i].innerText = p;
+    cells[i].classList.add("taken");
+    cells[i].classList.add(p === "X" ? "cell-x" : "cell-o");
 
-function resetGame(){
-  board = ["","","","","","","","",""];
-  currentPlayer = "X";
-  gameOver = false;
-  statusText.innerText = "Player X Turn";
-  cells.forEach(c => c.innerText = "");
-}
+    if(checkWin(board, p)){
+      statusText.innerText = p + " Wins the Match!";
+      statusText.style.color = p === "X" ? "#38bdf8" : "#f87171";
+      gameOver = true;
+      return;
+    }
+
+    if(board.every(c => c !== "")){
+      statusText.innerText = "Match Draw!";
+      gameOver = true;
+      return;
+    }
+
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+    statusText.innerText = currentPlayer + "'s Turn";
+  }
+
+  function minimax(newBoard, player){
+    let avail = newBoard.map((v,i)=>v===""?i:null).filter(v=>v!==null);
+    if(checkWin(newBoard, "X")) return {score: -10};
+    if(checkWin(newBoard, "O")) return {score: 10};
+    if(avail.length === 0) return {score: 0};
+
+    let moves = [];
+    for(let i of avail){
+      let move = {index: i};
+      newBoard[i] = player;
+      let result = minimax(newBoard, player === "O" ? "X" : "O");
+      move.score = result.score;
+      newBoard[i] = "";
+      moves.push(move);
+    }
+
+    let bestMove;
+    if(player === "O"){
+      let bestScore = -10000;
+      for(let m of moves) if(m.score > bestScore){ bestScore = m.score; bestMove = m; }
+    } else {
+      let bestScore = 10000;
+      for(let m of moves) if(m.score < bestScore){ bestScore = m.score; bestMove = m; }
+    }
+    return bestMove;
+  }
+
+  function checkWin(b, p){ return wins.some(w => w.every(i => b[i] === p)); }
+
+  function resetGame(){
+    board = ["","","","","","","","",""];
+    currentPlayer = "X";
+    gameOver = false;
+    statusText.innerText = "Your Turn (X)";
+    statusText.style.color = "#94a3b8";
+    cells.forEach(c => {
+      c.innerText = "";
+      c.className = "cell";
+    });
+  }
 </script>
-
 </body>
 </html>
