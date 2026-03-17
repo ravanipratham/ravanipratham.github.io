@@ -13,9 +13,22 @@
     min-height: 100vh; margin: 0;
   }
   .status { 
-    margin-bottom: 15px; font-size: 1.5rem; font-weight: bold; color: #38bdf8;
+    margin-bottom: 10px; font-size: 1.5rem; font-weight: bold; color: #38bdf8;
     text-shadow: 0 0 10px rgba(56,189,248,0.3);
   }
+  .game-container {
+    display: flex; flex-direction: column; align-items: center; gap: 15px;
+  }
+  @media (min-width: 950px) {
+    .game-container { flex-direction: row; align-items: flex-start; }
+  }
+  .graveyard {
+    background: rgba(30, 41, 59, 0.5); padding: 10px; border-radius: 12px;
+    width: 240px; min-height: 60px; display: flex; flex-wrap: wrap; gap: 5px;
+    font-size: 24px; border: 1px solid #334155;
+  }
+  .graveyard h4 { width: 100%; margin: 0 0 5px 0; font-size: 12px; opacity: 0.6; text-transform: uppercase; }
+  
   .board {
     display: grid; grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(8, 40px);
     border: 8px solid #334155; box-shadow: 0 0 30px rgba(0,0,0,0.6);
@@ -31,37 +44,43 @@
   .black-sq { background-color: #475569; }
   .p-white { color: #ffffff; text-shadow: 0 0 4px #000; z-index: 2; } 
   .p-black { color: #000000; z-index: 2; }
-  
   .selected { background-color: #fbbf24 !important; }
-  
-  /* Suggestion Dot */
   .hint::after {
-    content: '';
-    width: 15px;
-    height: 15px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 50%;
-    position: absolute;
-    z-index: 1;
+    content: ''; width: 14px; height: 14px; background-color: rgba(0, 0, 0, 0.15); border-radius: 50%;
+    position: absolute; z-index: 1;
   }
-
-  .home-btn {
-    margin-top: 25px; padding: 12px 30px; background: #38bdf8; border: none;
-    border-radius: 10px; color: #020617; font-weight: bold; cursor: pointer;
+  .controls { display: flex; gap: 10px; margin-top: 20px; }
+  button {
+    padding: 12px 25px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s;
   }
+  .undo-btn { background: #64748b; color: white; }
+  .home-btn { background: #38bdf8; color: #020617; }
+  button:hover { transform: scale(1.05); opacity: 0.9; }
 </style>
 </head>
 <body>
 
 <div class="status" id="status">White's Turn</div>
-<div id="board" class="board"></div>
-<button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
+
+<div class="game-container">
+  <div class="graveyard" id="white-graveyard"><h4>White's Trophies</h4></div>
+  <div id="board" class="board"></div>
+  <div class="graveyard" id="black-graveyard"><h4>Black's Trophies</h4></div>
+</div>
+
+<div class="controls">
+  <button class="undo-btn" onclick="undoMove()">↩ Undo</button>
+  <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
+</div>
 
 <script>
 if(localStorage.getItem("loggedIn") !== "true") window.location.replace("login.html");
 
 const boardElement = document.getElementById('board');
 const statusElement = document.getElementById('status');
+const whiteGrave = document.getElementById('white-graveyard');
+const blackGrave = document.getElementById('black-graveyard');
+
 const pieces = { r:'♜', n:'♞', b:'♝', q:'♛', k:'♚', p:'♟', R:'♜', N:'♞', B:'♝', Q:'♛', K:'♚', P:'♟' };
 
 let board = [
@@ -77,6 +96,7 @@ let board = [
 
 let selectedSquare = null;
 let turn = 'white';
+let history = [];
 
 function createBoard() {
   boardElement.innerHTML = '';
@@ -98,29 +118,18 @@ function createBoard() {
 function isPathClear(sr, sc, dr, dc) {
   let rStep = dr === sr ? 0 : (dr > sr ? 1 : -1);
   let cStep = dc === sc ? 0 : (dc > sc ? 1 : -1);
-  let currR = sr + rStep;
-  let currC = sc + cStep;
+  let currR = sr + rStep, currC = sc + cStep;
   while (currR !== dr || currC !== dc) {
     if (board[currR][currC] !== '') return false;
-    currR += rStep;
-    currC += cStep;
+    currR += rStep; currC += cStep;
   }
   return true;
 }
 
 function isValidMove(sr, sc, dr, dc, piece, target) {
   const isWhite = piece === piece.toUpperCase();
-  const absR = Math.abs(dr - sr);
-  const absC = Math.abs(dc - sc);
-  const pType = piece.toLowerCase();
-
-  // Team check (cannot capture own)
-  if (target !== '') {
-    const isTargetWhite = target === target.toUpperCase();
-    if (isWhite === isTargetWhite) return false;
-  }
-
-  // PAWN
+  const absR = Math.abs(dr - sr), absC = Math.abs(dc - sc), pType = piece.toLowerCase();
+  if (target !== '' && isWhite === (target === target.toUpperCase())) return false;
   if (pType === 'p') {
     const dir = isWhite ? -1 : 1;
     if (sc === dc && dr === sr + dir && target === '') return true;
@@ -128,35 +137,41 @@ function isValidMove(sr, sc, dr, dc, piece, target) {
     if (absC === 1 && dr === sr + dir && target !== '') return true;
     return false;
   }
-
-  // KNIGHT
   if (pType === 'n') return (absR === 2 && absC === 1) || (absR === 1 && absC === 2);
-
-  // ROOK
   if (pType === 'r') return (sr === dr || sc === dc) && isPathClear(sr, sc, dr, dc);
-
-  // BISHOP
   if (pType === 'b') return (absR === absC) && isPathClear(sr, sc, dr, dc);
-
-  // QUEEN
   if (pType === 'q') return ((sr === dr || sc === dc) || (absR === absC)) && isPathClear(sr, sc, dr, dc);
-
-  // KING
   if (pType === 'k') return (absR <= 1 && absC <= 1);
-
   return false;
 }
 
-function showSuggestions(sr, sc) {
-  const movingPiece = board[sr][sc];
-  const squares = boardElement.children;
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      if (isValidMove(sr, sc, r, c, movingPiece, board[r][c])) {
-        squares[r * 8 + c].classList.add('hint');
-      }
-    }
-  }
+function saveHistory() {
+  history.push({
+    board: JSON.parse(JSON.stringify(board)),
+    turn: turn,
+    whiteGraveHTML: whiteGrave.innerHTML,
+    blackGraveHTML: blackGrave.innerHTML
+  });
+}
+
+function undoMove() {
+  if (history.length === 0) return;
+  const lastState = history.pop();
+  board = lastState.board;
+  turn = lastState.turn;
+  whiteGrave.innerHTML = lastState.whiteGraveHTML;
+  blackGrave.innerHTML = lastState.blackGraveHTML;
+  statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
+  selectedSquare = null;
+  createBoard();
+}
+
+function addToGraveyard(piece) {
+  const span = document.createElement('span');
+  span.innerText = pieces[piece];
+  span.style.color = piece === piece.toUpperCase() ? 'white' : 'black';
+  if (piece === piece.toUpperCase()) blackGrave.appendChild(span);
+  else whiteGrave.appendChild(span);
 }
 
 function handleSquareClick(r, c) {
@@ -166,23 +181,26 @@ function handleSquareClick(r, c) {
   if (selectedSquare === null) {
     if (isTeam) {
       selectedSquare = { r, c };
-      createBoard(); // Clean board
-      boardElement.children[r * 8 + c].classList.add('selected');
-      showSuggestions(r, c);
-    }
-  } else {
-    const sr = selectedSquare.r, sc = selectedSquare.c;
-    const movingPiece = board[sr][sc];
-    
-    if (isTeam) { // Switch selection
-      selectedSquare = { r, c };
       createBoard();
       boardElement.children[r * 8 + c].classList.add('selected');
-      showSuggestions(r, c);
+      for (let tr = 0; tr < 8; tr++) {
+        for (let tc = 0; tc < 8; tc++) {
+          if (isValidMove(r, c, tr, tc, board[r][c], board[tr][tc])) {
+            boardElement.children[tr * 8 + tc].classList.add('hint');
+          }
+        }
+      }
+    }
+  } else {
+    const sr = selectedSquare.r, sc = selectedSquare.c, movingPiece = board[sr][sc];
+    if (isTeam) {
+      selectedSquare = { r, c };
+      handleSquareClick(r, c);
       return;
     }
-
     if (isValidMove(sr, sc, r, c, movingPiece, board[r][c])) {
+      saveHistory(); // Save BEFORE the move happens
+      if (board[r][c] !== '') addToGraveyard(board[r][c]);
       board[r][c] = movingPiece;
       board[sr][sc] = '';
       turn = turn === 'white' ? 'black' : 'white';
@@ -195,7 +213,6 @@ function handleSquareClick(r, c) {
     }
   }
 }
-
 createBoard();
 </script>
 </body>
