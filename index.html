@@ -1,196 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Pratham Apps Hub</title>
-<style>
-/* 1. MOBILE LOCKDOWN */
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden; /* Stops horizontal moving/wobbling */
-  background-color: #020617;
-  font-family: 'Inter', system-ui, sans-serif;
-  color: white;
-  position: relative;
-  /* Smooths out mobile scrolling */
-  -webkit-overflow-scrolling: touch; 
-  touch-action: manipulation;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pratham Apps Hub</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23020617'/><path d='M35 25h20c15 0 20 10 20 17.5S70 60 55 60H45v15h-10V25zm10 25h10c5 0 10-2 10-7.5s-5-7.5-10-7.5H45v15z' fill='%2338bdf8'/></svg>">
 
-/* 2. BACKGROUND BLOBS (Mobile Optimized) */
-body::before, body::after {
-  content: "";
-  position: fixed;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  filter: blur(80px);
-  z-index: -1;
-  opacity: 0.25;
-  pointer-events: none; /* Prevents blobs from interfering with clicks */
-  animation: move 20s infinite alternate;
-}
+    <style>
+        /* 1. GLOBAL MOBILE RESET */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden; /* Anti-wobble */
+            background-color: #020617;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: white;
+            position: relative;
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+        }
 
-body::before { background: #38bdf8; top: -50px; left: -50px; }
-body::after { background: #6366f1; bottom: -50px; right: -50px; }
+        /* 2. DYNAMIC BACKGROUND */
+        body::before, body::after {
+            content: "";
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(90px);
+            z-index: -1;
+            opacity: 0.25;
+            pointer-events: none;
+            animation: move 20s infinite alternate ease-in-out;
+        }
+        body::before { background: #38bdf8; top: -100px; left: -100px; }
+        body::after { background: #6366f1; bottom: -100px; right: -100px; animation-delay: -5s; }
 
-@keyframes move {
-  from { transform: translate(0, 0); }
-  to { transform: translate(50px, 50px); }
-}
+        @keyframes move {
+            from { transform: translate(0, 0); }
+            to { transform: translate(80px, 80px); }
+        }
 
-header {
-  text-align: center;
-  padding: 60px 20px 20px;
-  box-sizing: border-box;
-}
+        /* 3. HEADER & BRANDING */
+        header {
+            text-align: center;
+            padding: 60px 20px 20px;
+            box-sizing: border-box;
+        }
 
-#greeting-box {
-  color: #38bdf8;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
+        .brand-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
 
-header h1 {
-  font-size: 2.5rem; /* Scaled down for mobile screens */
-  margin: 0;
-  background: linear-gradient(135deg, #fff, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -1px;
-}
+        .brand-logo {
+            width: 45px; height: 45px;
+            background: #38bdf8;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: #020617;
+            font-size: 24px;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
 
-/* 3. RESPONSIVE GRID */
-.container {
-  display: grid;
-  /* Standard 1 column on mobile, 2+ on tablets */
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-  padding: 20px;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  box-sizing: border-box; /* Crucial: padding doesn't widen the container */
-}
+        header h1 {
+            font-size: 2.2rem;
+            margin: 0;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
 
-/* 4. GLASS CARDS */
-.card {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 28px;
-  padding: 30px;
-  text-align: center;
-  transition: transform 0.3s ease;
-  /* Prevents selection highlighting on tap */
-  -webkit-tap-highlight-color: transparent; 
-}
+        #greeting-box {
+            color: #38bdf8;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
 
-.card:active {
-  transform: scale(0.98); /* Tactile feedback on mobile tap */
-}
+        /* 4. PROFESSIONAL ICON BOXES */
+        .icon-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            width: 90px;
+            height: 90px;
+            border-radius: 24px;
+            margin: 0 auto 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.4s;
+        }
 
-.icon-box {
-  font-size: 40px;
-  margin-bottom: 15px;
-  background: rgba(255, 255, 255, 0.05);
-  width: 80px;
-  height: 80px;
-  line-height: 80px;
-  border-radius: 22px;
-  display: inline-block;
-}
+        /* Logo Styling */
+        .logo-calc { width: 30px; height: 30px; border: 3px solid #38bdf8; border-radius: 6px; position: relative; }
+        .logo-calc::before { content: '+ -'; position: absolute; top: 2px; left: 4px; font-size: 12px; font-weight: bold; color: #38bdf8; }
 
-.card h3 { font-size: 1.4rem; margin: 10px 0; }
-.card p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 25px; }
+        .logo-ttt { width: 30px; height: 30px; position: relative; }
+        .logo-ttt span { position: absolute; width: 100%; height: 4px; background: #f87171; top: 45%; border-radius: 2px; transform: rotate(45deg); }
+        .logo-ttt span:last-child { transform: rotate(-45deg); }
 
-.card button {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 14px;
-  background: white;
-  color: #020617;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-}
+        .logo-bird { width: 35px; height: 25px; background: #fbbf24; border-radius: 20px 20px 5px 5px; position: relative; }
+        .logo-bird::after { content: ''; position: absolute; top: 5px; right: -5px; width: 10px; height: 10px; background: #f59e0b; border-radius: 2px; }
 
-/* 5. FOOTER */
-footer {
-  text-align: center;
-  padding: 40px 20px;
-}
+        .logo-chess { width: 20px; height: 10px; background: #fff; border-radius: 2px; position: relative; }
+        .logo-chess::before { content: ''; position: absolute; bottom: 10px; left: 2px; width: 16px; height: 20px; background: #fff; border-radius: 10px 10px 0 0; }
+        .logo-chess::after { content: ''; position: absolute; bottom: 28px; left: 4px; width: 12px; height: 12px; background: #fff; border-radius: 50%; }
 
-.logout-btn {
-  background: transparent;
-  color: #ef4444;
-  border: 1px solid rgba(239,68,68,0.3);
-  padding: 8px 20px;
-  border-radius: 8px;
-}
-</style>
+        /* 5. APP GRID & CARDS */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 35px 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .card:hover .icon-box { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.2); }
+
+        .card h3 { font-size: 1.5rem; margin: 10px 0; font-weight: 700; }
+        .card p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.5; }
+
+        .card button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 16px;
+            background: white;
+            color: #020617;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .card button:hover { background: #38bdf8; color: white; box-shadow: 0 8px 20px rgba(56, 189, 248, 0.4); }
+
+        /* 6. FOOTER */
+        footer { text-align: center; padding: 40px 20px; }
+        .logout-btn { background: transparent; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 20px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .logout-btn:hover { background: #ef4444; color: white; }
+    </style>
 </head>
-
 <body>
 
 <header>
-  <div id="greeting-box">
-    <span id="time-greeting">Hello</span>, <span id="user-name" style="color: white; text-transform: capitalize;">Explorer</span>!
-  </div>
-  <h1>PRATHAM APPS</h1>
+    <div id="greeting-box">
+        <span id="time-greeting">Hello</span>, <span id="user-name" style="color: white; text-transform: capitalize;">Explorer</span>!
+    </div>
+    <div class="brand-container">
+        <div class="brand-logo">P</div>
+        <h1>PRATHAM APPS</h1>
+    </div>
 </header>
 
 <div class="container">
-  <div class="card">
-    <div class="icon-box">🧮</div>
-    <h3>Calculator</h3>
-    <button onclick="location.href='calculator.html'">Launch</button>
-  </div>
+    <div class="card">
+        <div class="icon-box"><div class="logo-calc"><span></span></div></div>
+        <h3>Calculator</h3>
+        <p>A minimalist glass tool for high-speed daily math.</p>
+        <button onclick="location.href='calculator.html'">Launch</button>
+    </div>
 
-  <div class="card">
-    <div class="icon-box">❌</div>
-    <h3>Tic Tac Toe</h3>
-    <button onclick="location.href='tictactoe.html'">Play</button>
-  </div>
+    <div class="card">
+        <div class="icon-box"><div class="logo-ttt"><span></span><span></span></div></div>
+        <h3>Tic Tac Toe</h3>
+        <p>Battle our impossible AI in a high-stakes duel.</p>
+        <button onclick="location.href='tictactoe.html'">Play</button>
+    </div>
 
-  <div class="card">
-    <div class="icon-box">🐦</div>
-    <h3>Flappy Bird</h3>
-    <button onclick="location.href='flappy.html'">Fly</button>
-  </div>
+    <div class="card">
+        <div class="icon-box"><div class="logo-bird"><span></span></div></div>
+        <h3>Flappy Bird</h3>
+        <p>Master the neon skies in our reflex-testing game.</p>
+        <button onclick="location.href='flappy.html'">Fly</button>
+    </div>
 
-  <div class="card">
-    <div class="icon-box">♟️</div>
-    <h3>Pro Chess</h3>
-    <button onclick="location.href='chess.html'">Enter</button>
-  </div>
+    <div class="card">
+        <div class="icon-box"><div class="logo-chess"><span></span></div></div>
+        <h3>Pro Chess</h3>
+        <p>Play with full rules, move hints, and undo support.</p>
+        <button onclick="location.href='chess.html'">Enter Match</button>
+    </div>
 </div>
 
 <footer>
-  <button class="logout-btn" onclick="logout()">Logout</button>
+    <button class="logout-btn" onclick="logout()">Logout Session</button>
 </footer>
 
 <script>
-  if(localStorage.getItem("loggedIn") !== "true"){
-    window.location.replace("login.html");
-  } else {
-    const user = localStorage.getItem("user") || "User";
-    document.getElementById("user-name").innerText = user;
-    const hours = new Date().getHours();
-    let message = hours < 12 ? "Good morning" : hours < 18 ? "Good afternoon" : "Good evening";
-    document.getElementById("time-greeting").innerText = message;
-  }
+    // SECURITY & PERSONALIZATION
+    if(localStorage.getItem("loggedIn") !== "true"){
+        window.location.replace("login.html");
+    } else {
+        const user = localStorage.getItem("user") || "Pratham";
+        document.getElementById("user-name").innerText = user;
 
-  function logout(){
-    localStorage.clear();
-    window.location.replace("login.html");
-  }
+        const hours = new Date().getHours();
+        let message = hours < 12 ? "Good morning" : hours < 18 ? "Good afternoon" : "Good evening";
+        document.getElementById("time-greeting").innerText = message;
+    }
+
+    function logout(){
+        localStorage.clear();
+        window.location.replace("login.html");
+    }
 </script>
 
 </body>
