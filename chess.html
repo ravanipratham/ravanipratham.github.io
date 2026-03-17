@@ -25,13 +25,26 @@
   }
   .square {
     width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;
-    font-size: 38px; cursor: pointer; user-select: none; transition: all 0.2s;
+    font-size: 38px; cursor: pointer; user-select: none; position: relative;
   }
   .white-sq { background-color: #e2e8f0; }
   .black-sq { background-color: #475569; }
-  .p-white { color: #ffffff; text-shadow: 0 0 4px #000; } 
-  .p-black { color: #000000; }
+  .p-white { color: #ffffff; text-shadow: 0 0 4px #000; z-index: 2; } 
+  .p-black { color: #000000; z-index: 2; }
+  
   .selected { background-color: #fbbf24 !important; }
+  
+  /* Suggestion Dot */
+  .hint::after {
+    content: '';
+    width: 15px;
+    height: 15px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    position: absolute;
+    z-index: 1;
+  }
+
   .home-btn {
     margin-top: 25px; padding: 12px 30px; background: #38bdf8; border: none;
     border-radius: 10px; color: #020617; font-weight: bold; cursor: pointer;
@@ -83,8 +96,8 @@ function createBoard() {
 }
 
 function isPathClear(sr, sc, dr, dc) {
-  let rStep = dr > sr ? 1 : (dr < sr ? -1 : 0);
-  let cStep = dc > sc ? 1 : (dc < sc ? -1 : 0);
+  let rStep = dr === sr ? 0 : (dr > sr ? 1 : -1);
+  let cStep = dc === sc ? 0 : (dc > sc ? 1 : -1);
   let currR = sr + rStep;
   let currC = sc + cStep;
   while (currR !== dr || currC !== dc) {
@@ -100,6 +113,12 @@ function isValidMove(sr, sc, dr, dc, piece, target) {
   const absR = Math.abs(dr - sr);
   const absC = Math.abs(dc - sc);
   const pType = piece.toLowerCase();
+
+  // Team check (cannot capture own)
+  if (target !== '') {
+    const isTargetWhite = target === target.toUpperCase();
+    if (isWhite === isTargetWhite) return false;
+  }
 
   // PAWN
   if (pType === 'p') {
@@ -119,13 +138,25 @@ function isValidMove(sr, sc, dr, dc, piece, target) {
   // BISHOP
   if (pType === 'b') return (absR === absC) && isPathClear(sr, sc, dr, dc);
 
-  // QUEEN (Rook + Bishop)
+  // QUEEN
   if (pType === 'q') return ((sr === dr || sc === dc) || (absR === absC)) && isPathClear(sr, sc, dr, dc);
 
-  // KING (Any direction, only 1 square)
+  // KING
   if (pType === 'k') return (absR <= 1 && absC <= 1);
 
   return false;
+}
+
+function showSuggestions(sr, sc) {
+  const movingPiece = board[sr][sc];
+  const squares = boardElement.children;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (isValidMove(sr, sc, r, c, movingPiece, board[r][c])) {
+        squares[r * 8 + c].classList.add('hint');
+      }
+    }
+  }
 }
 
 function handleSquareClick(r, c) {
@@ -135,7 +166,9 @@ function handleSquareClick(r, c) {
   if (selectedSquare === null) {
     if (isTeam) {
       selectedSquare = { r, c };
-      refreshBoardWithSelection(r, c);
+      createBoard(); // Clean board
+      boardElement.children[r * 8 + c].classList.add('selected');
+      showSuggestions(r, c);
     }
   } else {
     const sr = selectedSquare.r, sc = selectedSquare.c;
@@ -143,7 +176,9 @@ function handleSquareClick(r, c) {
     
     if (isTeam) { // Switch selection
       selectedSquare = { r, c };
-      refreshBoardWithSelection(r, c);
+      createBoard();
+      boardElement.children[r * 8 + c].classList.add('selected');
+      showSuggestions(r, c);
       return;
     }
 
@@ -154,13 +189,11 @@ function handleSquareClick(r, c) {
       statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
       selectedSquare = null;
       createBoard();
+    } else {
+      selectedSquare = null;
+      createBoard();
     }
   }
-}
-
-function refreshBoardWithSelection(row, col) {
-  createBoard();
-  boardElement.children[row * 8 + col].classList.add('selected');
 }
 
 createBoard();
