@@ -16,12 +16,13 @@
     min-height: 100vh;
     margin: 0;
   }
-  .status { margin-bottom: 10px; font-size: 1.2rem; }
+  .status { margin-bottom: 15px; font-size: 1.5rem; font-weight: bold; color: #38bdf8; }
   .board {
     display: grid;
     grid-template-columns: repeat(8, 40px);
     grid-template-rows: repeat(8, 40px);
-    border: 5px solid #334155;
+    border: 8px solid #334155;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
   }
   @media (min-width: 600px) {
     .board { grid-template-columns: repeat(8, 60px); grid-template-rows: repeat(8, 60px); }
@@ -32,20 +33,28 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 30px;
+    font-size: 35px;
     cursor: pointer;
     user-select: none;
+    transition: background 0.2s;
   }
-  .white { background-color: #e2e8f0; color: #000; }
-  .black { background-color: #475569; color: #fff; }
+  /* Updated Colors for better visibility */
+  .white-sq { background-color: #e2e8f0; }
+  .black-sq { background-color: #475569; }
+  
+  /* Piece colors */
+  .p-white { color: #ffffff; text-shadow: 0 0 3px #000; } /* White pieces with outline */
+  .p-black { color: #000000; } /* Black pieces */
+
   .selected { background-color: #fbbf24 !important; }
   .home-btn {
     margin-top: 20px;
-    padding: 10px 20px;
-    background: #64748b;
+    padding: 10px 25px;
+    background: #38bdf8;
     border: none;
     border-radius: 8px;
-    color: white;
+    color: #020617;
+    font-weight: bold;
     cursor: pointer;
   }
 </style>
@@ -57,13 +66,15 @@
 <button class="home-btn" onclick="location.href='index.html'">⬅ Home</button>
 
 <script>
+// Check login status (Security check)
+if(localStorage.getItem("loggedIn") !== "true") window.location.replace("login.html");
+
 const boardElement = document.getElementById('board');
 const statusElement = document.getElementById('status');
 
-// Unicode characters for chess pieces
 const pieces = {
   r: '♜', n: '♞', b: '♝', q: '♛', k: '♚', p: '♟',
-  R: '♖', N: '♘', B: '♗', Q: '♕', K: '♔', P: '♙'
+  R: '♜', N: '♞', B: '♝', Q: '♛', K: '♚', P: '♟'
 };
 
 let board = [
@@ -86,13 +97,15 @@ function createBoard() {
     for (let c = 0; c < 8; c++) {
       const square = document.createElement('div');
       square.classList.add('square');
-      square.classList.add((r + c) % 2 === 0 ? 'white' : 'black');
-      square.dataset.row = r;
-      square.dataset.col = c;
+      square.classList.add((r + c) % 2 === 0 ? 'white-sq' : 'black-sq');
       
       const piece = board[r][c];
-      if (piece) square.innerText = pieces[piece];
-      
+      if (piece) {
+        square.innerText = pieces[piece];
+        // Apply color based on case (Upper = White, Lower = Black)
+        square.classList.add(piece === piece.toUpperCase() ? 'p-white' : 'p-black');
+      }
+
       square.onclick = () => handleSquareClick(r, c);
       boardElement.appendChild(square);
     }
@@ -104,28 +117,44 @@ function handleSquareClick(r, c) {
   const isWhitePiece = piece && piece === piece.toUpperCase();
   const isBlackPiece = piece && piece === piece.toLowerCase();
 
-  // Selecting a piece
+  // 1. SELECTING A PIECE
   if (selectedSquare === null) {
     if ((turn === 'white' && isWhitePiece) || (turn === 'black' && isBlackPiece)) {
       selectedSquare = { r, c };
-      highlightSquare(r, c);
+      refreshBoardWithSelection(r, c);
     }
   } 
-  // Moving a piece
+  // 2. MOVING OR DESELECTING
   else {
     const sr = selectedSquare.r;
     const sc = selectedSquare.c;
-    
+
+    // Deselect if clicking the same square
     if (sr === r && sc === c) {
       selectedSquare = null;
       createBoard();
       return;
     }
 
-    // Basic move logic (Capture or Move to empty)
+    // BLOCK CAPTURING OWN PIECES
+    const targetPiece = board[r][c];
+    const isTargetSameTeam = targetPiece && (
+      (turn === 'white' && targetPiece === targetPiece.toUpperCase()) ||
+      (turn === 'black' && targetPiece === targetPiece.toLowerCase())
+    );
+
+    if (isTargetSameTeam) {
+      // Switch selection to the new piece of the same team
+      selectedSquare = { r, c };
+      refreshBoardWithSelection(r, c);
+      return;
+    }
+
+    // PERFORM MOVE
     board[r][c] = board[sr][sc];
     board[sr][sc] = '';
-    
+
+    // Switch turn
     turn = turn === 'white' ? 'black' : 'white';
     statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
     selectedSquare = null;
@@ -133,9 +162,9 @@ function handleSquareClick(r, c) {
   }
 }
 
-function highlightSquare(r, c) {
+function refreshBoardWithSelection(row, col) {
   createBoard();
-  const index = r * 8 + c;
+  const index = row * 8 + col;
   boardElement.children[index].classList.add('selected');
 }
 
