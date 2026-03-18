@@ -1,110 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Login | Pratham Apps</title>
-<style>
-  body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #020617;
-    background: radial-gradient(circle at top right, #1e1b4b, #020617);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    color: white;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>System Login | Pratham Hub</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23ffffff'/><path d='M35 25h20c15 0 20 10 20 17.5S70 60 55 60H45v15h-10V25zm10 25h10c5 0 10-2 10-7.5s-5-7.5-10-7.5H45v15z' fill='%2338bdf8'/></svg>">
 
-  .box {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 50px 40px;
-    border-radius: 28px;
-    width: 90%;
-    max-width: 380px;
-    text-align: center;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-  }
+    <style>
+        :root {
+            --bg-main: #f3f4f6;
+            --grid-color: #e5e7eb;
+            --text-dark: #0f172a;
+            --grad-login: linear-gradient(135deg, #00d2ff, #3a7bd5);
+        }
 
-  h2 {
-    font-size: 2rem;
-    margin-bottom: 30px;
-    background: linear-gradient(to right, #38bdf8, #818cf8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-main);
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+        }
 
-  input {
-    width: 100%;
-    padding: 14px;
-    margin: 12px 0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.2);
-    color: white;
-    font-size: 16px;
-    box-sizing: border-box;
-    outline: none;
-    transition: 0.3s;
-  }
+        .login-card {
+            background: #ffffff;
+            width: 90%; max-width: 380px;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+            animation: slideUp 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
 
-  input:focus {
-    border-color: #38bdf8;
-    background: rgba(0, 0, 0, 0.4);
-  }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-  button {
-    width: 100%;
-    padding: 14px;
-    margin-top: 20px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #38bdf8, #2563eb);
-    color: white;
-    font-weight: 700;
-    font-size: 17px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
+        .logo-badge {
+            width: 70px; height: 70px;
+            background: var(--grad-login);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 32px; font-weight: 900; color: white;
+            box-shadow: 0 10px 20px rgba(0, 210, 255, 0.3);
+        }
 
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
-  }
+        h2 { margin: 0 0 5px; font-weight: 900; font-size: 1.8rem; color: var(--text-dark); letter-spacing: -0.5px; }
+        p { color: #64748b; margin-bottom: 30px; font-size: 0.95rem; font-weight: 500; }
 
-  .small {
-    margin-top: 25px;
-    font-size: 13px;
-    color: #94a3b8;
-  }
-</style>
+        input {
+            width: 100%; box-sizing: border-box;
+            padding: 15px; margin-bottom: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 1rem; color: var(--text-dark); font-weight: 600;
+            transition: 0.3s;
+        }
+        input:focus { outline: none; border-color: #00d2ff; background: #ffffff; box-shadow: 0 0 0 4px rgba(0, 210, 255, 0.1); }
+
+        button {
+            width: 100%; padding: 15px;
+            border-radius: 12px; border: none;
+            background: var(--grad-login); color: white;
+            font-size: 1.1rem; font-weight: 800; text-transform: uppercase;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(58, 123, 213, 0.2);
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(58, 123, 213, 0.4); }
+        
+        .error { color: #ef4444; font-size: 0.85rem; font-weight: 600; margin-top: 15px; display: none; }
+    </style>
 </head>
 <body>
 
-<div class="box">
-  <h2>🔐 Access Hub</h2>
-  <input type="text" id="username" placeholder="Username">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-  <p class="small">Demo: <b>pratham</b> | <b>1234</b></p>
+<div class="login-card">
+    <div class="logo-badge">P</div>
+    <h2>System Gateway</h2>
+    <p>Enter credentials to access the hub.</p>
+    
+    <input type="text" id="username" placeholder="Player Tag (Name)" autocomplete="off">
+    <input type="password" id="password" placeholder="Passcode (1234)">
+    
+    <button onclick="login()">Initialize</button>
+    <div class="error" id="error-msg">Access Denied. Check passcode.</div>
 </div>
 
 <script>
-function login(){
-  let user = document.getElementById("username").value.trim();
-  let pass = document.getElementById("password").value.trim();
+    if(localStorage.getItem("loggedIn") === "true") window.location.replace("index.html");
 
-  if(user === "pratham" && pass === "1234"){
-    localStorage.setItem("loggedIn", "true");
-    window.location.replace("index.html");
-  } else {
-    alert("Invalid credentials");
-  }
-}
+    function login() {
+        const user = document.getElementById("username").value.trim();
+        const pass = document.getElementById("password").value;
+        const error = document.getElementById("error-msg");
+
+        if (user !== "" && pass === "1234") { // Simple password logic
+            localStorage.setItem("loggedIn", "true");
+            localStorage.setItem("user", user);
+            window.location.replace("index.html");
+        } else {
+            error.style.display = "block";
+            setTimeout(() => error.style.display = "none", 3000);
+        }
+    }
 </script>
+
 </body>
 </html>
