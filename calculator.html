@@ -130,9 +130,11 @@
 
     const display = document.getElementById('display');
     const historyDisp = document.getElementById('history');
+    
     let currentInput = '0';
     let previousInput = '';
     let operation = null;
+    let shouldResetScreen = false; // The new variable that fixes the "shrinking" issue
 
     function updateDisplay() {
         display.innerText = currentInput;
@@ -140,29 +142,52 @@
     }
 
     function appendNum(num) {
+        // If we just pressed an operator, wipe the big screen clean for the next number
+        if (shouldResetScreen) {
+            currentInput = '';
+            shouldResetScreen = false;
+        }
+        
         if (currentInput === '0' && num !== '.') currentInput = num;
         else if (num === '.' && currentInput.includes('.')) return;
         else currentInput += num;
+        
         updateDisplay();
     }
 
     function appendOp(op) {
-        if (currentInput === '' && op === '-') { currentInput = '-'; updateDisplay(); return; }
-        if (currentInput === '' || currentInput === '-') return;
-        if (previousInput !== '') calculate();
-        
         let visualOp = op;
         if(op === '*') visualOp = '×';
         if(op === '/') visualOp = '÷';
+
+        // Allow negative numbers if screen is empty
+        if (currentInput === '0' && op === '-') { 
+            currentInput = '-'; 
+            updateDisplay(); 
+            return; 
+        }
+
+        // If you change your mind and hit a different operator before typing a new number
+        if (shouldResetScreen) {
+            operation = visualOp;
+            updateDisplay();
+            return;
+        }
+
+        // If chaining operations (e.g. 5 + 5 + ... calculates the first part instantly)
+        if (previousInput !== '' && !shouldResetScreen) {
+            calculate();
+        }
         
         operation = visualOp;
         previousInput = currentInput;
-        currentInput = '';
+        shouldResetScreen = true; // Tell the app to keep the number visible until you type again
         updateDisplay();
     }
 
     function calculate() {
         if (previousInput === '' || currentInput === '' || currentInput === '-') return;
+        
         let prev = parseFloat(previousInput);
         let curr = parseFloat(currentInput);
         let result = 0;
@@ -180,17 +205,25 @@
         }
 
         currentInput = result.toString();
-        // Limit decimal places to avoid overflow overflow
+        // Limit decimals so it doesn't break the UI
         if(currentInput.includes('.')) currentInput = parseFloat(result.toFixed(8)).toString();
         
         operation = null;
         previousInput = '';
+        shouldResetScreen = true; 
         updateDisplay();
     }
 
-    function clearAll() { currentInput = '0'; previousInput = ''; operation = null; updateDisplay(); }
+    function clearAll() { 
+        currentInput = '0'; 
+        previousInput = ''; 
+        operation = null; 
+        shouldResetScreen = false; 
+        updateDisplay(); 
+    }
     
     function deleteLast() {
+        if (shouldResetScreen) return; // Don't let users delete a finished answer
         if (currentInput.length > 1) currentInput = currentInput.slice(0, -1);
         else currentInput = '0';
         updateDisplay();
