@@ -3,200 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pratham Hub | Premium</title>
+    <title>Pratham Hub | Gaming Edition</title>
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23020617'/><path d='M35 25h20c15 0 20 10 20 17.5S70 60 55 60H45v15h-10V25zm10 25h10c5 0 10-2 10-7.5s-5-7.5-10-7.5H45v15z' fill='%2338bdf8'/></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23ffffff'/><path d='M35 25h20c15 0 20 10 20 17.5S70 60 55 60H45v15h-10V25zm10 25h10c5 0 10-2 10-7.5s-5-7.5-10-7.5H45v15z' fill='%2338bdf8'/></svg>">
 
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: rgba(255, 255, 255, 0.02);
-            --card-border: rgba(255, 255, 255, 0.05);
-            --text-main: #ffffff;
-            --text-sub: #94a3b8;
+            /* Light Gaming Theme Variables */
+            --bg-main: #f3f4f6;
+            --grid-color: #e5e7eb;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            
+            /* High-Energy Gaming Gradients */
+            --grad-calc: linear-gradient(135deg, #ff007a, #7928ca);
+            --grad-ttt: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            --grad-bird: linear-gradient(135deg, #fceabb, #f8b500);
+            --grad-chess: linear-gradient(135deg, #434343, #000000);
         }
 
-        /* RESET & BASE */
+        /* Base & E-sports Grid Background */
         html, body {
             margin: 0; padding: 0; width: 100%; min-height: 100%;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at top left, #1e293b, transparent 40%),
-                              radial-gradient(circle at bottom right, #0f172a, transparent 40%);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: var(--text-main);
+            background-color: var(--bg-main);
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px; /* Creates the console gaming grid */
+            font-family: 'Inter', system-ui, sans-serif;
+            color: var(--text-dark);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* HEADER / DASHBOARD GREETING */
+        /* GAMER TAG HEADER */
         header {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 50px 20px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            max-width: 1000px; margin: 0 auto; padding: 60px 20px 30px;
+            display: flex; justify-content: space-between; align-items: center;
         }
+        .header-left { display: flex; flex-direction: column; }
+        .system-status { 
+            color: #10b981; font-weight: 800; font-size: 0.85rem; 
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; 
+            display: flex; align-items: center; gap: 6px;
+        }
+        .system-status::before {
+            content: ''; width: 8px; height: 8px; background: #10b981; 
+            border-radius: 50%; box-shadow: 0 0 10px #10b981; animation: blink 2s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        
+        .player-tag { font-size: 2.5rem; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -1px; }
+        .player-tag span { background: var(--grad-ttt); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .user-greeting { display: flex; flex-direction: column; }
-        .greeting-time { color: var(--text-sub); font-size: 0.95rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .user-name { font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
-        .user-name span { color: #38bdf8; } /* Signature Blue */
-
-        .profile-avatar {
-            width: 55px; height: 55px;
-            background: linear-gradient(135deg, #38bdf8, #6366f1);
-            border-radius: 16px;
+        .avatar {
+            width: 60px; height: 60px; border-radius: 14px;
+            background: white; border: 3px solid white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             display: flex; justify-content: center; align-items: center;
-            font-size: 24px; font-weight: 800; color: white;
-            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3);
+            font-size: 28px; font-weight: 900; color: #0f172a;
+            position: relative;
+        }
+        /* Level Badge */
+        .avatar::after {
+            content: 'Lv.99'; position: absolute; bottom: -10px; right: -10px;
+            background: #0f172a; color: white; font-size: 10px; font-weight: 800;
+            padding: 3px 6px; border-radius: 6px; border: 2px solid white;
         }
 
-        /* APP GRID */
+        /* GAME GRID */
         .container {
-            max-width: 1000px; margin: 20px auto; padding: 0 20px 50px;
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;
+            max-width: 1000px; margin: 0 auto; padding: 0 20px 60px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px;
         }
 
-        /* PREMIUM CARDS */
+        /* CONSOLE STYLE CARDS */
         .card {
             background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
+            border-radius: 20px;
             padding: 25px;
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             display: flex; flex-direction: column;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-decoration: none; color: inherit;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 2px solid transparent;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1;
         }
 
-        .card:hover {
-            transform: translateY(-8px);
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
+        /* Vibrant Hover Effects */
+        .card:hover { transform: translateY(-10px) scale(1.02); z-index: 2; }
+        .card.calc:hover { border-color: #ff007a; box-shadow: 0 20px 40px rgba(255, 0, 122, 0.2); }
+        .card.ttt:hover { border-color: #00d2ff; box-shadow: 0 20px 40px rgba(0, 210, 255, 0.2); }
+        .card.bird:hover { border-color: #f8b500; box-shadow: 0 20px 40px rgba(248, 181, 0, 0.2); }
+        .card.chess:hover { border-color: #0f172a; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2); }
 
-        /* APP ICONS (Like iOS/macOS) */
-        .app-icon {
-            width: 65px; height: 65px;
-            border-radius: 18px;
+        /* NEXT LEVEL LOGO BADGES */
+        .logo-badge {
+            width: 80px; height: 80px; border-radius: 20px;
+            margin-bottom: 20px; position: relative;
             display: flex; justify-content: center; align-items: center;
-            margin-bottom: 20px;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2), 0 8px 16px rgba(0,0,0,0.3);
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3), 0 15px 25px rgba(0,0,0,0.15);
         }
-        .app-icon svg { width: 32px; height: 32px; fill: white; }
-
-        /* Specific App Colors */
-        .icon-calc { background: linear-gradient(135deg, #f97316, #ea580c); } /* Orange */
-        .icon-ttt { background: linear-gradient(135deg, #c084fc, #9333ea); } /* Purple */
-        .icon-bird { background: linear-gradient(135deg, #fbbf24, #d97706); } /* Yellow/Gold */
-        .icon-chess { background: linear-gradient(135deg, #475569, #1e293b); } /* Slate/Silver */
-
-        .card h3 { font-size: 1.3rem; font-weight: 700; margin: 0 0 8px 0; }
-        .card p { font-size: 0.9rem; color: var(--text-sub); margin: 0 0 25px 0; line-height: 1.5; flex-grow: 1; }
-
-        /* SLEEK BUTTONS */
-        .launch-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white; font-weight: 600; font-size: 0.9rem;
-            padding: 12px; border-radius: 12px;
-            text-align: center; transition: 0.3s;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
+        .logo-badge::before {
+            content: ''; position: absolute; inset: 0; border-radius: 20px;
+            background: inherit; filter: blur(15px); opacity: 0.6; z-index: -1;
+            transition: 0.3s;
         }
-        .card:hover .launch-btn {
-            background: white; color: black;
-        }
+        .card:hover .logo-badge::before { opacity: 1; filter: blur(20px); }
+        
+        .logo-badge svg { width: 50px; height: 50px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: 0.3s; }
+        .card:hover .logo-badge svg { transform: scale(1.1) rotate(5deg); }
 
-        /* FOOTER */
-        footer { text-align: center; padding: 20px; margin-bottom: 20px; }
-        .logout-btn { 
-            background: transparent; color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); 
-            padding: 10px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; 
-        }
-        .logout-btn:hover { background: #ef4444; color: white; }
+        .logo-calc { background: var(--grad-calc); }
+        .logo-ttt { background: var(--grad-ttt); }
+        .logo-bird { background: var(--grad-bird); }
+        .logo-chess { background: var(--grad-chess); }
 
+        .card h3 { font-size: 1.5rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px; }
+        .card p { font-size: 0.95rem; color: var(--text-gray); margin: 0 0 30px 0; line-height: 1.5; font-weight: 500; flex-grow: 1; }
+
+        /* GAMING BUTTONS */
+        .play-btn {
+            background: #f1f5f9; color: var(--text-dark);
+            font-weight: 800; font-size: 0.9rem; text-transform: uppercase;
+            padding: 14px; border-radius: 12px; text-align: center;
+            transition: 0.3s; display: flex; justify-content: space-between; align-items: center;
+        }
+        .play-btn span { font-size: 1.2rem; }
+        
+        .card.calc:hover .play-btn { background: var(--grad-calc); color: white; }
+        .card.ttt:hover .play-btn { background: var(--grad-ttt); color: white; }
+        .card.bird:hover .play-btn { background: var(--grad-bird); color: white; }
+        .card.chess:hover .play-btn { background: var(--grad-chess); color: white; }
+
+        footer { text-align: center; padding: 20px; }
+        .logout-btn { background: white; color: #ef4444; border: 2px solid #ef4444; padding: 12px 30px; border-radius: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.1); }
+        .logout-btn:hover { background: #ef4444; color: white; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3); transform: translateY(-3px); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="user-greeting">
-        <div class="greeting-time" id="time-greeting">Good Evening</div>
-        <h1 class="user-name">Welcome, <span id="user-name">Pratham</span>.</h1>
+    <div class="header-left">
+        <div class="system-status">System Online</div>
+        <h1 class="player-tag">Player: <span id="user-name">Pratham</span></h1>
     </div>
-    <div class="profile-avatar">P</div>
+    <div class="avatar">P</div>
 </header>
 
 <div class="container">
     
-    <a href="calculator.html" class="card">
-        <div class="app-icon icon-calc">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="2" width="16" height="20" rx="4"></rect>
-                <line x1="8" y1="6" x2="16" y2="6"></line>
-                <line x1="16" y1="14" x2="16" y2="18"></line>
-                <path d="M8 10h.01M12 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"></path>
+    <a href="calculator.html" class="card calc">
+        <div class="logo-badge logo-calc">
+            <svg viewBox="0 0 100 100">
+                <rect x="20" y="15" width="60" height="70" rx="12" fill="none" stroke="white" stroke-width="6"/>
+                <path d="M35 35h30M35 50h30M35 65h10M55 65h10" stroke="white" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="50" cy="15" r="4" fill="white"/>
             </svg>
         </div>
         <h3>Calculator</h3>
-        <p>A sleek, minimalist tool for your daily high-speed mathematics.</p>
-        <div class="launch-btn">Open App <span>→</span></div>
+        <p>High-speed mathematical engine. Crunch numbers with fluid precision.</p>
+        <div class="play-btn">Launch App <span>→</span></div>
     </a>
 
-    <a href="tictactoe.html" class="card">
-        <div class="app-icon icon-ttt">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 12h18M12 3v18M8 8l-4-4M16 8l4-4M8 16l-4 4M16 16l4 4"></path>
+    <a href="tictactoe.html" class="card ttt">
+        <div class="logo-badge logo-ttt">
+            <svg viewBox="0 0 100 100">
+                <path d="M25 25l50 50M75 25L25 75" stroke="white" stroke-width="12" stroke-linecap="round"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="white" stroke-width="8" stroke-dasharray="20 10"/>
             </svg>
         </div>
         <h3>Tic Tac Toe</h3>
-        <p>Challenge the impossible AI in a modern take on the classic duel.</p>
-        <div class="launch-btn">Play Game <span>→</span></div>
+        <p>1v1 tactical arena. Outsmart the AI in this fast-paced logic duel.</p>
+        <div class="play-btn">Play Match <span>→</span></div>
     </a>
 
-    <a href="flappy.html" class="card">
-        <div class="app-icon icon-bird">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-3a2 2 0 0 1 2-2h3"></path>
-                <path d="M12 3v7"></path>
-                <path d="M8 5.5l4-2.5 4 2.5"></path>
+    <a href="flappy.html" class="card bird">
+        <div class="logo-badge logo-bird">
+            <svg viewBox="0 0 100 100">
+                <path d="M30 50 Q50 20 70 50 Q80 60 70 70 Q50 80 30 70 Z" fill="white"/>
+                <circle cx="65" cy="45" r="5" fill="#f8b500"/>
+                <path d="M20 50 Q10 40 20 30" fill="none" stroke="white" stroke-width="6" stroke-linecap="round"/>
             </svg>
         </div>
         <h3>Flappy Bird</h3>
-        <p>Test your reflexes navigating through endless neon skies.</p>
-        <div class="launch-btn">Launch <span>→</span></div>
+        <p>Retro arcade physics challenge. Navigate the endless pipe gauntlet.</p>
+        <div class="play-btn">Start Game <span>→</span></div>
     </a>
 
-    <a href="chess.html" class="card">
-        <div class="app-icon icon-chess">
-            <svg viewBox="0 0 448 512" style="fill: white; stroke: none; width: 28px; height: 28px;">
-                <path d="M325.3 48h-96c-17.7 0-32 14.3-32 32v128c0 10.6 5.3 20.4 14.2 26.2l128 84c4.1 2.7 6.6 7.2 6.6 12.1v91.3c0 23.3-17.7 42.7-41 43.9H204.5v-69.3c0-60.1 48.7-108.7 108.8-108.7h112c17.7 0 32-14.3 32-32V320z"/>
+    <a href="chess.html" class="card chess">
+        <div class="logo-badge logo-chess">
+            <svg viewBox="0 0 100 100">
+                <path d="M20 75 L80 75 L70 30 L50 50 L30 30 Z" fill="white" stroke="white" stroke-width="5" stroke-linejoin="round"/>
+                <circle cx="30" cy="25" r="6" fill="white"/>
+                <circle cx="50" cy="45" r="6" fill="white"/>
+                <circle cx="70" cy="25" r="6" fill="white"/>
             </svg>
         </div>
         <h3>Pro Chess</h3>
-        <p>Full tournament rules, timers, move history, and classic UI.</p>
-        <div class="launch-btn">Enter Match <span>→</span></div>
+        <p>Grandmaster engine. Timers, match logs, and tournament-grade rules.</p>
+        <div class="play-btn">Enter Arena <span>→</span></div>
     </a>
 
 </div>
 
 <footer>
-    <button class="logout-btn" onclick="logout()">End Session</button>
+    <button class="logout-btn" onclick="logout()">Disconnect</button>
 </footer>
 
 <script>
-    // Security & Personalization
     if(localStorage.getItem("loggedIn") !== "true"){
         window.location.replace("login.html");
     } else {
         const user = localStorage.getItem("user") || "Pratham";
         document.getElementById("user-name").innerText = user;
-
-        const hours = new Date().getHours();
-        let message = hours < 12 ? "Good Morning" : hours < 18 ? "Good Afternoon" : "Good Evening";
-        document.getElementById("time-greeting").innerText = message;
     }
 
     function logout(){
