@@ -9,7 +9,6 @@
 
     <style>
         :root {
-            /* Exact Chess.com Colors */
             --sq-white: #ebecd0; 
             --sq-black: #779556;
             --accent: #38bdf8;
@@ -19,7 +18,7 @@
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             overflow-x: hidden;
-            background: #2b2b2b; /* Darker background like the screenshot */
+            background: #2b2b2b; 
             font-family: 'Inter', system-ui, sans-serif;
             color: white;
             display: flex; flex-direction: column; align-items: center;
@@ -27,9 +26,28 @@
             -webkit-text-size-adjust: 100%;
         }
 
-        header { padding: 15px; text-align: center; }
+        header { padding: 10px; text-align: center; }
         .status { font-size: 1.2rem; font-weight: bold; color: white; letter-spacing: 1px; }
 
+        /* PLAYER INFO & TIMERS */
+        .player-info {
+            width: 100%; max-width: 380px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 8px 0; padding: 0 5px; box-sizing: border-box;
+        }
+        .player-name { font-weight: bold; color: #ddd; font-size: 1.1rem; }
+        .timer {
+            background: #1e1e1e; color: #aaa;
+            padding: 6px 14px; border-radius: 6px;
+            font-family: monospace; font-size: 1.3rem; font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .active-timer {
+            background: #fff; color: #000;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        /* BOARD */
         .board { 
             display: grid; 
             grid-template-columns: repeat(8, 11.5vw);
@@ -45,28 +63,24 @@
         .white-sq { background-color: var(--sq-white); }
         .black-sq { background-color: var(--sq-black); }
 
-        /* IMAGE PIECE STYLING */
-        .piece { 
-            width: 95%; height: 95%; 
-            z-index: 5; 
-            user-select: none; 
-            pointer-events: none;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
-        }
+        .piece { width: 95%; height: 95%; z-index: 5; user-select: none; pointer-events: none; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
 
         .selected { background-color: rgba(255, 255, 0, 0.5) !important; }
         .last-move { background-color: rgba(255, 255, 0, 0.3) !important; }
         .hint::after { content: ''; width: 25%; height: 25%; background: rgba(0,0,0,0.2); border-radius: 50%; position: absolute; }
         .check { background-color: rgba(239, 68, 68, 0.6) !important; }
 
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; border-radius: 4px; }
+        /* OVERLAYS */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; border-radius: 4px; text-align: center; }
+        .overlay h2 { margin-bottom: 5px; }
+        .overlay p { color: #aaa; margin-top: 0; margin-bottom: 20px; font-weight: bold; }
         .promo-btn { width: 50px; height: 50px; background: white; border: 1px solid #ccc; cursor: pointer; padding: 5px; margin: 5px; border-radius: 8px; }
         .promo-btn img { width: 100%; height: 100%; }
         
-        .controls { display: flex; gap: 10px; margin-top: 25px; padding-bottom: 20px;}
+        .controls { display: flex; gap: 10px; margin-top: 20px; padding-bottom: 20px;}
         button { padding: 12px 24px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
         .undo-btn { background: #4b4b4b; color: white; }
-        .hub-btn { background: #81b64c; color: white; } /* Chess.com Green Button */
+        .hub-btn { background: #81b64c; color: white; } 
     </style>
 </head>
 <body>
@@ -75,15 +89,26 @@
     <div class="status" id="status">White's Turn</div>
 </header>
 
+<div class="player-info">
+    <div class="player-name">Black</div>
+    <div class="timer" id="black-timer">10:00</div>
+</div>
+
 <div id="board" class="board">
     <div id="game-over-overlay" class="overlay">
         <h2 id="win-message">Checkmate</h2>
+        <p id="win-subtext">White Wins</p>
         <button class="hub-btn" onclick="location.reload()">Reset Match</button>
     </div>
     <div id="promo-overlay" class="overlay">
         <h3>Promote</h3>
         <div id="promo-choices" style="display:flex;"></div>
     </div>
+</div>
+
+<div class="player-info">
+    <div class="player-name">White</div>
+    <div class="timer active-timer" id="white-timer">10:00</div>
 </div>
 
 <div class="controls">
@@ -100,11 +125,11 @@ const overlay = document.getElementById('game-over-overlay');
 const promoOverlay = document.getElementById('promo-overlay');
 const promoChoices = document.getElementById('promo-choices');
 const winMsg = document.getElementById('win-message');
+const winSubtext = document.getElementById('win-subtext');
 
 const moveSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
 const captureSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3');
 
-// USING EXTERNAL WIKIMEDIA IMAGES (Forces cache to break)
 const imgUrls = {
     P: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
     R: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
@@ -123,6 +148,51 @@ const imgUrls = {
 let board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']];
 let turn = 'white', selectedSquare = null, enPassantTarget = null, history = [], lastMove = null;
 let moveFlags = { whiteKing: false, blackKing: false, whiteRookA: false, whiteRookH: false, blackRookA: false, blackRookH: false };
+
+// TIMER LOGIC
+let whiteTime = 600; // 10 minutes in seconds
+let blackTime = 600;
+let timerInterval = null;
+let gameActive = true;
+
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+}
+
+function updateTimerDisplay() {
+    document.getElementById('white-timer').innerText = formatTime(whiteTime);
+    document.getElementById('black-timer').innerText = formatTime(blackTime);
+    
+    if(turn === 'white') {
+        document.getElementById('white-timer').classList.add('active-timer');
+        document.getElementById('black-timer').classList.remove('active-timer');
+    } else {
+        document.getElementById('black-timer').classList.add('active-timer');
+        document.getElementById('white-timer').classList.remove('active-timer');
+    }
+}
+
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (!gameActive) return;
+        
+        if (turn === 'white') whiteTime--;
+        else blackTime--;
+        
+        updateTimerDisplay();
+
+        if (whiteTime <= 0 || blackTime <= 0) {
+            gameActive = false;
+            clearInterval(timerInterval);
+            overlay.style.display = 'flex';
+            winMsg.innerText = "Timeout!";
+            winSubtext.innerText = whiteTime <= 0 ? "Black Wins on Time" : "White Wins on Time";
+        }
+    }, 1000);
+}
 
 function createBoard() {
     boardElement.querySelectorAll('.square').forEach(s => s.remove());
@@ -147,13 +217,38 @@ function createBoard() {
 }
 
 function handleSquareClick(r, c) {
+    if(!gameActive) return;
     const p = board[r][c];
     const isTeam = p && (turn === 'white' ? p === p.toUpperCase() : p === p.toLowerCase());
-    if (selectedSquare === null) { if (isTeam) { selectedSquare = {r, c}; createBoard(); document.querySelectorAll('.square')[r*8+c].classList.add('selected'); showHints(r, c); } }
-    else {
+
+    if (selectedSquare === null) { 
+        if (isTeam) { selectedSquare = {r, c}; createBoard(); document.querySelectorAll('.square')[r*8+c].classList.add('selected'); showHints(r, c); } 
+    } else {
         const sr = selectedSquare.r, sc = selectedSquare.c, movingPiece = board[sr][sc];
-        if (isTeam) { selectedSquare = {r, c}; handleSquareClick(r, c); return; }
-        if (isValidMove(sr, sc, r, c, movingPiece, p, board)) { executeMove(sr, sc, r, c, movingPiece); } else { selectedSquare = null; createBoard(); }
+        
+        // Deselect if clicked the same piece again
+        if (sr === r && sc === c) {
+            selectedSquare = null;
+            createBoard();
+            return;
+        }
+        
+        // Switch selection to another friendly piece
+        if (isTeam) { 
+            selectedSquare = {r, c}; 
+            createBoard(); 
+            document.querySelectorAll('.square')[r*8+c].classList.add('selected'); 
+            showHints(r, c);
+            return; 
+        }
+
+        // Try to move
+        if (isValidMove(sr, sc, r, c, movingPiece, p, board)) { 
+            executeMove(sr, sc, r, c, movingPiece); 
+        } else { 
+            selectedSquare = null; 
+            createBoard(); 
+        }
     }
 }
 
@@ -187,7 +282,16 @@ function finalizeTurn(sr, sc, dr, dc, p) {
     if (p === 'r' && sr === 0 && sc === 7) moveFlags.blackRookH = true;
     turn = turn === 'white' ? 'black' : 'white';
     statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn";
-    if (isGameOver()) { overlay.style.display = 'flex'; winMsg.innerText = isKingInCheck(turn, board) ? "Checkmate" : "Stalemate"; }
+    
+    updateTimerDisplay();
+
+    if (isGameOver()) { 
+        gameActive = false;
+        clearInterval(timerInterval);
+        overlay.style.display = 'flex'; 
+        winMsg.innerText = isKingInCheck(turn, board) ? "Checkmate" : "Stalemate"; 
+        winSubtext.innerText = isKingInCheck(turn, board) ? (turn === 'white' ? "Black Wins" : "White Wins") : "It's a draw";
+    }
     selectedSquare = null; createBoard();
 }
 
@@ -282,10 +386,24 @@ function isGameOver() {
     return true;
 }
 
-function saveHistory() { history.push({ board: JSON.parse(JSON.stringify(board)), turn, moveFlags: JSON.parse(JSON.stringify(moveFlags)), enPassantTarget, lastMove }); }
-function undoMove() { if (history.length === 0) return; const last = history.pop(); board = last.board; turn = last.turn; moveFlags = last.moveFlags; enPassantTarget = last.enPassantTarget; lastMove = last.lastMove; createBoard(); }
+// Ensure the time state is saved so if you "Undo", the clock goes back to what it was!
+function saveHistory() { 
+    history.push({ board: JSON.parse(JSON.stringify(board)), turn, moveFlags: JSON.parse(JSON.stringify(moveFlags)), enPassantTarget, lastMove, wTime: whiteTime, bTime: blackTime }); 
+}
+
+function undoMove() { 
+    if (history.length === 0 || !gameActive) return; 
+    const last = history.pop(); 
+    board = last.board; turn = last.turn; moveFlags = last.moveFlags; enPassantTarget = last.enPassantTarget; lastMove = last.lastMove; 
+    whiteTime = last.wTime; blackTime = last.bTime;
+    statusElement.innerText = turn.charAt(0).toUpperCase() + turn.slice(1) + "'s Turn"; 
+    updateTimerDisplay();
+    selectedSquare = null; 
+    createBoard(); 
+}
 
 createBoard();
+startTimer(); // Starts the clock immediately
 </script>
 </body>
 </html>
