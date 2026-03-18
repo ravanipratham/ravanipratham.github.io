@@ -1,135 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Pratham Calculator</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  body {
-    margin: 0;
-    background: #020617;
-    background: radial-gradient(circle at bottom left, #1e1b4b, #020617);
-    font-family: 'Segoe UI', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculator | Pratham Hub</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23ffffff'/><path d='M35 25h20c15 0 20 10 20 17.5S70 60 55 60H45v15h-10V25zm10 25h10c5 0 10-2 10-7.5s-5-7.5-10-7.5H45v15z' fill='%2338bdf8'/></svg>">
 
-  .calculator {
-    width: 340px;
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 35px;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-  }
+    <style>
+        :root {
+            --bg-main: #f3f4f6;
+            --grid-color: #e5e7eb;
+            --text-dark: #0f172a;
+            --grad-pink: linear-gradient(135deg, #ff007a, #7928ca);
+        }
 
-  .display {
-    color: white;
-    font-size: 54px;
-    text-align: right;
-    padding: 40px 10px 20px;
-    height: 80px;
-    overflow: hidden;
-    font-weight: 300;
-  }
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-main);
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            touch-action: manipulation;
+        }
 
-  .buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-  }
+        .calc-wrapper {
+            background: #ffffff;
+            width: 90%; max-width: 340px;
+            padding: 25px;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
 
-  button {
-    height: 65px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 24px;
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.08);
-    color: white;
-    transition: all 0.2s;
-  }
+        /* DISPLAY SCREEN */
+        .display-container {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: right;
+            border: 2px solid #e2e8f0;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .history { font-size: 0.9rem; color: #94a3b8; min-height: 20px; font-weight: 600; letter-spacing: 1px; }
+        .current { font-size: 3rem; font-weight: 900; color: var(--text-dark); margin: 0; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .current::-webkit-scrollbar { display: none; }
 
-  button:hover { background: rgba(255, 255, 255, 0.15); }
-  button:active { transform: scale(0.92); }
+        /* BUTTON GRID */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
 
-  button.operator { background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: bold; }
-  button.equal { background: #2563eb; color: white; box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4); }
-  button.gray { background: rgba(255, 255, 255, 0.05); color: #94a3b8; }
+        button {
+            background: #f1f5f9;
+            border: none; border-radius: 16px;
+            font-size: 1.5rem; font-weight: 800; color: var(--text-dark);
+            padding: 18px 0; cursor: pointer;
+            transition: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 0 #e2e8f0;
+        }
+        button:active { transform: translateY(4px); box-shadow: 0 0 0 #e2e8f0; }
 
-  .zero { grid-column: span 2; }
+        .btn-op { background: #e2e8f0; color: #ff007a; }
+        .btn-op:active { box-shadow: 0 0 0 #cbd5e1; }
+        
+        .btn-clear { color: #ef4444; }
+        
+        .btn-eq { 
+            background: var(--grad-pink); color: white; 
+            grid-column: span 2; 
+            box-shadow: 0 4px 0 #7928ca; 
+        }
+        .btn-eq:active { box-shadow: 0 0 0 #7928ca; transform: translateY(4px); }
 
-  .home-btn {
-    width: 100%;
-    margin-bottom: 20px;
-    height: 45px;
-    border-radius: 12px;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-  }
-</style>
+        .btn-hub {
+            margin-top: 25px; width: 100%; padding: 15px;
+            border-radius: 14px; border: 2px solid #e2e8f0;
+            background: white; color: var(--text-dark);
+            font-weight: 800; text-transform: uppercase;
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-hub:hover { background: #f1f5f9; }
+    </style>
 </head>
 <body>
 
-<div class="calculator">
-  <button class="home-btn" onclick="location.href='index.html'">⬅ Back to Hub</button>
-  <div id="display" class="display">0</div>
-  <div class="buttons">
-    <button class="gray" onclick="clearAll()">AC</button>
-    <button class="gray" onclick="backspace()">⌫</button>
-    <button class="operator" onclick="append('/')">÷</button>
-    <button class="operator" onclick="append('*')">×</button>
+<div class="calc-wrapper">
+    <div class="display-container">
+        <div class="history" id="history"></div>
+        <div class="current" id="display">0</div>
+    </div>
 
-    <button onclick="append('7')">7</button>
-    <button onclick="append('8')">8</button>
-    <button onclick="append('9')">9</button>
-    <button class="operator" onclick="append('-')">−</button>
+    <div class="keypad">
+        <button class="btn-clear" onclick="clearAll()">AC</button>
+        <button class="btn-clear" onclick="deleteLast()">DEL</button>
+        <button class="btn-op" onclick="appendOp('%')">%</button>
+        <button class="btn-op" onclick="appendOp('/')">÷</button>
 
-    <button onclick="append('4')">4</button>
-    <button onclick="append('5')">5</button>
-    <button onclick="append('6')">6</button>
-    <button class="operator" onclick="append('+')">+</button>
+        <button onclick="appendNum('7')">7</button>
+        <button onclick="appendNum('8')">8</button>
+        <button onclick="appendNum('9')">9</button>
+        <button class="btn-op" onclick="appendOp('*')">×</button>
 
-    <button onclick="append('1')">1</button>
-    <button onclick="append('2')">2</button>
-    <button onclick="append('3')">3</button>
-    <button class="equal" onclick="calculate()">=</button>
+        <button onclick="appendNum('4')">4</button>
+        <button onclick="appendNum('5')">5</button>
+        <button onclick="appendNum('6')">6</button>
+        <button class="btn-op" onclick="appendOp('-')">−</button>
 
-    <button class="zero" onclick="append('0')">0</button>
-    <button onclick="append('.')">.</button>
-  </div>
+        <button onclick="appendNum('1')">1</button>
+        <button onclick="appendNum('2')">2</button>
+        <button onclick="appendNum('3')">3</button>
+        <button class="btn-op" onclick="appendOp('+')">+</button>
+
+        <button onclick="appendNum('0')">0</button>
+        <button onclick="appendNum('.')">.</button>
+        <button class="btn-eq" onclick="calculate()">=</button>
+    </div>
+
+    <button class="btn-hub" onclick="location.href='index.html'">Exit to Hub</button>
 </div>
 
 <script>
-let display = document.getElementById("display");
+    if(localStorage.getItem("loggedIn") !== "true") window.location.replace("login.html");
 
-function append(value) {
-  if (display.innerText === "0" && value !== ".") {
-    display.innerText = value;
-  } else {
-    display.innerText += value;
-  }
-}
+    const display = document.getElementById('display');
+    const historyDisp = document.getElementById('history');
+    let currentInput = '0';
+    let previousInput = '';
+    let operation = null;
 
-function clearAll() { display.innerText = "0"; }
+    function updateDisplay() {
+        display.innerText = currentInput;
+        historyDisp.innerText = previousInput + (operation ? ' ' + operation : '');
+    }
 
-function backspace() {
-  display.innerText = display.innerText.length > 1 ? display.innerText.slice(0, -1) : "0";
-}
+    function appendNum(num) {
+        if (currentInput === '0' && num !== '.') currentInput = num;
+        else if (num === '.' && currentInput.includes('.')) return;
+        else currentInput += num;
+        updateDisplay();
+    }
 
-function calculate() {
-  try {
-    display.innerText = eval(display.innerText.replace('×', '*').replace('÷', '/'));
-  } catch {
-    display.innerText = "Error";
-  }
-}
+    function appendOp(op) {
+        if (currentInput === '' && op === '-') { currentInput = '-'; updateDisplay(); return; }
+        if (currentInput === '' || currentInput === '-') return;
+        if (previousInput !== '') calculate();
+        
+        let visualOp = op;
+        if(op === '*') visualOp = '×';
+        if(op === '/') visualOp = '÷';
+        
+        operation = visualOp;
+        previousInput = currentInput;
+        currentInput = '';
+        updateDisplay();
+    }
+
+    function calculate() {
+        if (previousInput === '' || currentInput === '' || currentInput === '-') return;
+        let prev = parseFloat(previousInput);
+        let curr = parseFloat(currentInput);
+        let result = 0;
+
+        let realOp = operation;
+        if(operation === '×') realOp = '*';
+        if(operation === '÷') realOp = '/';
+
+        switch (realOp) {
+            case '+': result = prev + curr; break;
+            case '-': result = prev - curr; break;
+            case '*': result = prev * curr; break;
+            case '/': result = curr === 0 ? "Error" : prev / curr; break;
+            case '%': result = prev % curr; break;
+        }
+
+        currentInput = result.toString();
+        // Limit decimal places to avoid overflow overflow
+        if(currentInput.includes('.')) currentInput = parseFloat(result.toFixed(8)).toString();
+        
+        operation = null;
+        previousInput = '';
+        updateDisplay();
+    }
+
+    function clearAll() { currentInput = '0'; previousInput = ''; operation = null; updateDisplay(); }
+    
+    function deleteLast() {
+        if (currentInput.length > 1) currentInput = currentInput.slice(0, -1);
+        else currentInput = '0';
+        updateDisplay();
+    }
 </script>
+
 </body>
 </html>
