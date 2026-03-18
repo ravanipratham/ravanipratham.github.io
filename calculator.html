@@ -99,7 +99,8 @@
     <div class="keypad">
         <button class="btn-clear" onclick="clearAll()">AC</button>
         <button class="btn-clear" onclick="deleteLast()">DEL</button>
-        <button class="btn-op" onclick="appendOp('%')">%</button>
+        
+        <button class="btn-op" onclick="applyPercentage()">%</button>
         <button class="btn-op" onclick="appendOp('/')">÷</button>
 
         <button onclick="appendNum('7')">7</button>
@@ -134,7 +135,7 @@
     let currentInput = '0';
     let previousInput = '';
     let operation = null;
-    let shouldResetScreen = false; // The new variable that fixes the "shrinking" issue
+    let shouldResetScreen = false;
 
     function updateDisplay() {
         display.innerText = currentInput;
@@ -142,7 +143,6 @@
     }
 
     function appendNum(num) {
-        // If we just pressed an operator, wipe the big screen clean for the next number
         if (shouldResetScreen) {
             currentInput = '';
             shouldResetScreen = false;
@@ -159,29 +159,49 @@
         let visualOp = op;
         if(op === '*') visualOp = '×';
         if(op === '/') visualOp = '÷';
+        if(op === '-') visualOp = '−';
 
-        // Allow negative numbers if screen is empty
         if (currentInput === '0' && op === '-') { 
             currentInput = '-'; 
             updateDisplay(); 
             return; 
         }
 
-        // If you change your mind and hit a different operator before typing a new number
         if (shouldResetScreen) {
             operation = visualOp;
             updateDisplay();
             return;
         }
 
-        // If chaining operations (e.g. 5 + 5 + ... calculates the first part instantly)
         if (previousInput !== '' && !shouldResetScreen) {
             calculate();
         }
         
         operation = visualOp;
         previousInput = currentInput;
-        shouldResetScreen = true; // Tell the app to keep the number visible until you type again
+        shouldResetScreen = true; 
+        updateDisplay();
+    }
+
+    // --- NEW SMART PERCENTAGE LOGIC ---
+    function applyPercentage() {
+        if (currentInput === '' || currentInput === '-' || currentInput === 'Error') return;
+        
+        let curr = parseFloat(currentInput);
+        
+        // If adding/subtracting a percentage (e.g. 200 + 10%)
+        if (previousInput !== '' && (operation === '+' || operation === '−')) {
+            let prev = parseFloat(previousInput);
+            let percentValue = prev * (curr / 100);
+            currentInput = percentValue.toString();
+        } else {
+            // Standard direct percentage (e.g. 50% = 0.5)
+            currentInput = (curr / 100).toString();
+        }
+        
+        // Clean up floating point errors
+        if(currentInput.includes('.')) currentInput = parseFloat(parseFloat(currentInput).toFixed(8)).toString();
+        
         updateDisplay();
     }
 
@@ -195,18 +215,21 @@
         let realOp = operation;
         if(operation === '×') realOp = '*';
         if(operation === '÷') realOp = '/';
+        if(operation === '−') realOp = '-';
 
         switch (realOp) {
             case '+': result = prev + curr; break;
             case '-': result = prev - curr; break;
             case '*': result = prev * curr; break;
             case '/': result = curr === 0 ? "Error" : prev / curr; break;
-            case '%': result = prev % curr; break;
         }
 
-        currentInput = result.toString();
-        // Limit decimals so it doesn't break the UI
-        if(currentInput.includes('.')) currentInput = parseFloat(result.toFixed(8)).toString();
+        if (result === "Error") {
+            currentInput = "Error";
+        } else {
+            currentInput = result.toString();
+            if(currentInput.includes('.')) currentInput = parseFloat(result.toFixed(8)).toString();
+        }
         
         operation = null;
         previousInput = '';
@@ -223,7 +246,7 @@
     }
     
     function deleteLast() {
-        if (shouldResetScreen) return; // Don't let users delete a finished answer
+        if (shouldResetScreen || currentInput === "Error") return; 
         if (currentInput.length > 1) currentInput = currentInput.slice(0, -1);
         else currentInput = '0';
         updateDisplay();
