@@ -9,20 +9,17 @@
 
     <style>
         :root {
-            /* Board: Green and Cream like your target photo */
+            /* Exact Chess.com Colors */
             --sq-white: #ebecd0; 
             --sq-black: #779556;
             --accent: #38bdf8;
-            --white-piece: #fff;
-            --black-piece: #222;
         }
 
-        /* MOBILE LOCKDOWN */
         html, body {
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             overflow-x: hidden;
-            background: #020617;
+            background: #2b2b2b; /* Darker background like the screenshot */
             font-family: 'Inter', system-ui, sans-serif;
             color: white;
             display: flex; flex-direction: column; align-items: center;
@@ -31,14 +28,13 @@
         }
 
         header { padding: 15px; text-align: center; }
-        .status { font-size: 1.1rem; font-weight: bold; color: var(--accent); }
+        .status { font-size: 1.2rem; font-weight: bold; color: white; letter-spacing: 1px; }
 
-        /* THE BOARD: Scales with screen width */
         .board { 
             display: grid; 
-            grid-template-columns: repeat(8, 11vw);
-            grid-template-rows: repeat(8, 11vw);
-            border: 4px solid #334155; 
+            grid-template-columns: repeat(8, 11.5vw);
+            grid-template-rows: repeat(8, 11.5vw);
+            border: 2px solid #111; 
             max-width: 380px; max-height: 380px; 
             position: relative; 
             box-sizing: border-box;
@@ -49,30 +45,28 @@
         .white-sq { background-color: var(--sq-white); }
         .black-sq { background-color: var(--sq-black); }
 
-        /* CLASSIC PIECE SVG STYLING */
+        /* IMAGE PIECE STYLING */
         .piece { 
-            width: 90%; height: 90%; 
+            width: 95%; height: 95%; 
             z-index: 5; 
-            /* Prevents browser image drag behavior */
             user-select: none; 
             pointer-events: none;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
         }
-        .p-white { fill: var(--white-piece); stroke: #000; stroke-width: 1.5px; }
-        .p-black { fill: var(--black-piece); stroke: #000; stroke-width: 1.5px; }
 
-        /* INTERACTION HIGHLIGHTS: Like your target photo */
         .selected { background-color: rgba(255, 255, 0, 0.5) !important; }
         .last-move { background-color: rgba(255, 255, 0, 0.3) !important; }
-        .hint::after { content: ''; width: 25%; height: 25%; background: rgba(0,0,0,0.15); border-radius: 50%; position: absolute; }
+        .hint::after { content: ''; width: 25%; height: 25%; background: rgba(0,0,0,0.2); border-radius: 50%; position: absolute; }
         .check { background-color: rgba(239, 68, 68, 0.6) !important; }
 
-        /* OVERLAYS */
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; border-radius: 4px; }
         .promo-btn { width: 50px; height: 50px; background: white; border: 1px solid #ccc; cursor: pointer; padding: 5px; margin: 5px; border-radius: 8px; }
-        .controls { display: flex; gap: 10px; margin-top: 20px; padding-bottom: 20px;}
-        button { padding: 12px 20px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
-        .undo-btn { background: #334155; color: white; }
-        .hub-btn { background: var(--accent); color: white; }
+        .promo-btn img { width: 100%; height: 100%; }
+        
+        .controls { display: flex; gap: 10px; margin-top: 25px; padding-bottom: 20px;}
+        button { padding: 12px 24px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 15px; }
+        .undo-btn { background: #4b4b4b; color: white; }
+        .hub-btn { background: #81b64c; color: white; } /* Chess.com Green Button */
     </style>
 </head>
 <body>
@@ -87,7 +81,7 @@
         <button class="hub-btn" onclick="location.reload()">Reset Match</button>
     </div>
     <div id="promo-overlay" class="overlay">
-        <h3>Promote Pawn</h3>
+        <h3>Promote</h3>
         <div id="promo-choices" style="display:flex;"></div>
     </div>
 </div>
@@ -107,18 +101,23 @@ const promoOverlay = document.getElementById('promo-overlay');
 const promoChoices = document.getElementById('promo-choices');
 const winMsg = document.getElementById('win-message');
 
-// Target SFX (Move & Capture)
 const moveSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
 const captureSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3');
 
-// UPDATED: CLASSIC STAUNTON SVG PATHS (Matching the recognizable photo)
-const svgs = {
-    P: `<svg viewBox="0 0 448 512" class="piece p-white"><path d="M224 96c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64zm82.4 153.1c25.4 12.5 42.6 38.6 42.6 68.9 0 25.1-12 47.3-30.7 61.2L348.8 448H99.2l29.5-88.8c-18.7-13.9-30.7-36.1-30.7-61.2 0-30.3 17.2-56.4 42.6-68.9 14.8-7.3 31.4-11.1 48.4-11.1h7c17 0 33.6 3.8 48.4 11.1z"/></svg>`,
-    R: `<svg viewBox="0 0 448 512" class="piece p-white"><path d="M32 32h384v64H32zM64 128v192h320V128H64zm-32 256h384v64H32z"/></svg>`,
-    N: `<svg viewBox="0 0 448 512" class="piece p-white"><path d="M325.3 48h-96c-17.7 0-32 14.3-32 32v128c0 10.6 5.3 20.4 14.2 26.2l128 84c4.1 2.7 6.6 7.2 6.6 12.1v91.3c0 23.3-17.7 42.7-41 43.9H204.5v-69.3c0-60.1 48.7-108.7 108.8-108.7h112c17.7 0 32-14.3 32-32V320z"/></svg>`,
-    B: `<svg viewBox="0 0 320 512" class="piece p-white"><path d="M160 0C115.8 0 80 35.8 80 80c0 23.7 10.3 45 26.7 59.7l-41.1 82.2C27 298.5 64 384 160 384s133-85.5 94.4-162.1l-41.1-82.2C229.7 125 240 103.7 240 80c0-44.2-35.8-80-80-80zM128 448h64v64h-64z"/></svg>`,
-    Q: `<svg viewBox="0 0 512 512" class="piece p-white"><path d="M256 32c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm160 128c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zM96 160c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm313.4 135.5l-65.7-13.1c-10.4-2.1-20.7 3.3-24.6 13.1l-63.1 157.7-63.1-157.7c-3.9-9.8-14.2-15.1-24.6-13.1l-65.7 13.1c-14.8 3-23.4 17.5-18.7 31.8l63 192c3.3 10.1 12.8 16.9 23.4 16.9h171.4c10.6 0 20.1-6.8 23.4-16.9l63-192c4.7-14.3-3.9-28.8-18.7-31.8z"/></svg>`,
-    K: `<svg viewBox="0 0 448 512" class="piece p-white"><path d="M224 0c17.7 0 32 14.3 32 32v16h16c17.7 0 32 14.3 32 32s-14.3 32-32 32h-16v48h112c17.7 0 32 14.3 32 32s-14.3 32-32 32H320v48h16c17.7 0 32 14.3 32 32s-14.3 32-32 32h-16v32c0 17.7-14.3 32-32 32H128c-17.7 0-32-14.3-32-32v-32H80c-17.7 0-32-14.3-32-32s14.3-32 32-32h16v-48H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h112v-48h-16c-17.7 0-32-14.3-32-32s14.3-32 32-32h16V32c0-17.7 14.3-32 32-32h32z"/></svg>`
+// USING EXTERNAL WIKIMEDIA IMAGES (Forces cache to break)
+const imgUrls = {
+    P: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
+    R: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
+    N: 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
+    B: 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
+    Q: 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
+    K: 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
+    p: 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
+    r: 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
+    n: 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
+    b: 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
+    q: 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
+    k: 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg'
 };
 
 let board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']];
@@ -126,8 +125,7 @@ let turn = 'white', selectedSquare = null, enPassantTarget = null, history = [],
 let moveFlags = { whiteKing: false, blackKing: false, whiteRookA: false, whiteRookH: false, blackRookA: false, blackRookH: false };
 
 function createBoard() {
-    const boardEl = document.getElementById('board');
-    boardEl.querySelectorAll('.square').forEach(s => s.remove());
+    boardElement.querySelectorAll('.square').forEach(s => s.remove());
     const isCheck = isKingInCheck(turn, board);
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -136,14 +134,14 @@ function createBoard() {
             const p = board[r][c];
             if(lastMove && ((lastMove.sr === r && lastMove.sc === c) || (lastMove.dr === r && lastMove.dc === c))) { sq.classList.add('last-move'); }
             if (p) {
-                const isWhite = p === p.toUpperCase();
-                let svgStr = svgs[p.toUpperCase()];
-                if(!isWhite) { svgStr = svgStr.replace('p-white', 'p-black'); }
-                sq.innerHTML = svgStr;
+                const img = document.createElement('img');
+                img.src = imgUrls[p];
+                img.className = 'piece';
+                sq.appendChild(img);
                 if(p.toLowerCase()==='k' && ((turn==='white' && p==='K') || (turn==='black' && p==='k')) && isCheck) sq.classList.add('check');
             }
             sq.onclick = () => handleSquareClick(r, c);
-            boardEl.appendChild(sq);
+            boardElement.appendChild(sq);
         }
     }
 }
@@ -200,9 +198,9 @@ function showPromotion(r, c, isWhite) {
     opts.forEach(o => {
         const btn = document.createElement('div');
         btn.className = 'promo-btn';
-        let svg = svgs[o.toUpperCase()];
-        if(!isWhite) svg = svg.replace('p-white', 'p-black');
-        btn.innerHTML = svg;
+        const img = document.createElement('img');
+        img.src = imgUrls[o];
+        btn.appendChild(img);
         btn.onclick = () => { board[r][c] = o; promoOverlay.style.display = 'none'; finalizeTurn(0,0,r,c,o); };
         promoChoices.appendChild(btn);
     });
