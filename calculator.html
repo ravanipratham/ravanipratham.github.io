@@ -99,7 +99,6 @@
     <div class="keypad">
         <button class="btn-clear" onclick="clearAll()">AC</button>
         <button class="btn-clear" onclick="deleteLast()">DEL</button>
-        
         <button class="btn-op" onclick="applyPercentage()">%</button>
         <button class="btn-op" onclick="appendOp('/')">÷</button>
 
@@ -183,24 +182,51 @@
         updateDisplay();
     }
 
-    // --- NEW SMART PERCENTAGE LOGIC ---
+    // --- PHYSICAL CALCULATOR PERCENTAGE LOGIC ---
     function applyPercentage() {
         if (currentInput === '' || currentInput === '-' || currentInput === 'Error') return;
         
         let curr = parseFloat(currentInput);
         
-        // If adding/subtracting a percentage (e.g. 200 + 10%)
-        if (previousInput !== '' && (operation === '+' || operation === '−')) {
+        if (previousInput !== '' && operation !== null) {
             let prev = parseFloat(previousInput);
-            let percentValue = prev * (curr / 100);
-            currentInput = percentValue.toString();
+            let finalValue = 0;
+            
+            let realOp = operation;
+            if(operation === '×') realOp = '*';
+            if(operation === '÷') realOp = '/';
+            if(operation === '−') realOp = '-';
+
+            // Example: 500 + 10 % = 550 (Adds 10% to 500)
+            if (realOp === '+') {
+                finalValue = prev + (prev * (curr / 100));
+            } 
+            // Example: 500 - 10 % = 450 (Subtracts 10% from 500)
+            else if (realOp === '-') {
+                finalValue = prev - (prev * (curr / 100));
+            } 
+            // Example: 500 * 30 % = 150 (Finds 30% of 500)
+            else if (realOp === '*') {
+                finalValue = prev * (curr / 100);
+            } 
+            else if (realOp === '/') {
+                finalValue = prev / (curr / 100);
+            }
+
+            currentInput = finalValue.toString();
+            if(currentInput.includes('.')) currentInput = parseFloat(finalValue.toFixed(8)).toString();
+            
+            // Act like we hit equals
+            previousInput = '';
+            operation = null;
+            shouldResetScreen = true;
+
         } else {
-            // Standard direct percentage (e.g. 50% = 0.5)
+            // If you just type 50 and hit %, it becomes 0.5
             currentInput = (curr / 100).toString();
+            if(currentInput.includes('.')) currentInput = parseFloat(parseFloat(currentInput).toFixed(8)).toString();
+            shouldResetScreen = true;
         }
-        
-        // Clean up floating point errors
-        if(currentInput.includes('.')) currentInput = parseFloat(parseFloat(currentInput).toFixed(8)).toString();
         
         updateDisplay();
     }
