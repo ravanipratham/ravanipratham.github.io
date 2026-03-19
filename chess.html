@@ -203,7 +203,8 @@ function startTimer() {
     if (!isTimed) return; 
     
     timerInterval = setInterval(() => {
-        if (!gameActive || isAiThinking) return; 
+        // FIXED: The timer will keep ticking down accurately regardless of the AI thinking!
+        if (!gameActive) return; 
         if (turn === 'white') whiteTime--; else blackTime--;
         updateTimerDisplay();
         
@@ -343,7 +344,10 @@ function finalizeTurn(sr, sc, dr, dc, p) {
         selectedSquare = null; createBoard();
         if(gameMode === 'ai' && turn === 'black' && gameActive) {
             isAiThinking = true; statusElement.innerText = "Computer is thinking...";
-            setTimeout(triggerAI, 500);
+            
+            // FIXED: Randomize AI think time (0.5 to 2.5 seconds) so the clock has time to visibly drop!
+            const thinkTime = Math.floor(Math.random() * 2000) + 500;
+           setTimeout(triggerAI, thinkTime);
         }
     }
 }
