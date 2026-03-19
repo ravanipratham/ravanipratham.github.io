@@ -53,9 +53,12 @@
         .mode-btn { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.8rem;}
         .mode-btn.active { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); color: #0284c7; }
         
-        .diff-toggle { display: none; gap: 5px; margin-bottom: 15px; } 
-        .diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 0.8rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: #64748b;}
-        .diff-btn.active { border-color: #10b981; background: rgba(16, 185, 129, 0.1); color: #059669; }
+        .sub-toggle { display: none; gap: 5px; margin-bottom: 15px; } 
+        .sub-btn { flex: 1; padding: 8px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 0.8rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: #64748b;}
+        .sub-btn.active { border-color: #10b981; background: rgba(16, 185, 129, 0.1); color: #059669; }
+        
+        /* Orange highlight for Time selector */
+        .time-btn.active { border-color: #f97316; background: rgba(249, 115, 22, 0.1); color: #c2410c; }
 
         input { width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #e2e8f0; text-align: center; display: none; font-weight: bold; font-size: 1rem;}
         input:focus { outline: none; border-color: #38bdf8; }
@@ -87,15 +90,21 @@
             <button class="mode-btn" id="btn-pvp" onclick="selectMode('pvp')">2 Players</button>
         </div>
 
+        <div class="sub-toggle" id="diff-selector" style="display: flex;">
+            <button class="sub-btn active" id="diff-easy" onclick="selectDiff('easy')">Novice</button>
+            <button class="sub-btn" id="diff-med" onclick="selectDiff('medium')">Advanced</button>
+            <button class="sub-btn" id="diff-hard" onclick="selectDiff('hard')">Pro</button>
+        </div>
+
         <div class="mode-toggle">
-            <button class="mode-btn active" id="btn-timed-yes" onclick="selectTime(true)">Timed (10m)</button>
+            <button class="mode-btn active" id="btn-timed-yes" onclick="selectTime(true)">Timed Mode</button>
             <button class="mode-btn" id="btn-timed-no" onclick="selectTime(false)">No Time Limit</button>
         </div>
 
-        <div class="diff-toggle" id="diff-selector" style="display: flex;">
-            <button class="diff-btn active" id="diff-easy" onclick="selectDiff('easy')">Novice</button>
-            <button class="diff-btn" id="diff-med" onclick="selectDiff('medium')">Advanced</button>
-            <button class="diff-btn" id="diff-hard" onclick="selectDiff('hard')">Pro</button>
+        <div class="sub-toggle" id="time-selector" style="display: flex;">
+            <button class="sub-btn time-btn" id="time-1m" onclick="selectTimeLimit(1)">1 Min</button>
+            <button class="sub-btn time-btn" id="time-3m" onclick="selectTimeLimit(3)">3 Min</button>
+            <button class="sub-btn time-btn active" id="time-10m" onclick="selectTimeLimit(10)">10 Min</button>
         </div>
 
         <input type="text" id="p2-name" placeholder="Player 2 Name" autocomplete="off">
@@ -144,7 +153,7 @@ const boardElement = document.getElementById('board');
 const statusElement = document.getElementById('status');
 const overlay = document.getElementById('game-over-overlay');
 const promoOverlay = document.getElementById('promo-overlay');
-const promoChoices = document.getElementById('promo-choices'); // <--- THIS WAS THE MISSING LINE!
+const promoChoices = document.getElementById('promo-choices');
 
 const moveSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
 const captureSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3');
@@ -163,7 +172,7 @@ let board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p']
 let turn = 'white', selectedSquare = null, enPassantTarget = null, history = [], lastMove = null;
 let moveFlags = { whiteKing: false, blackKing: false, whiteRookA: false, whiteRookH: false, blackRookA: false, blackRookH: false };
 
-let gameMode = 'ai', aiDifficulty = 'easy', isTimed = true, isAiThinking = false;
+let gameMode = 'ai', aiDifficulty = 'easy', isTimed = true, timeLimitSeconds = 600, isAiThinking = false;
 let player1Name = localStorage.getItem("user") || "Player 1";
 let player2Name = "Computer";
 
@@ -219,6 +228,14 @@ function selectTime(timed) {
     isTimed = timed;
     document.getElementById('btn-timed-yes').classList.toggle('active', timed === true);
     document.getElementById('btn-timed-no').classList.toggle('active', timed === false);
+    document.getElementById('time-selector').style.display = timed ? 'flex' : 'none';
+}
+
+function selectTimeLimit(minutes) {
+    timeLimitSeconds = minutes * 60;
+    document.getElementById('time-1m').classList.toggle('active', minutes === 1);
+    document.getElementById('time-3m').classList.toggle('active', minutes === 3);
+    document.getElementById('time-10m').classList.toggle('active', minutes === 10);
 }
 
 function selectDiff(level) {
@@ -351,7 +368,7 @@ function canAttack(sr, sc, dr, dc, p, b) {
 }
 
 function isValidMove(sr, sc, dr, dc, piece, target, b) {
-    const isWhite = piece === piece.toUpperCase(), pType = piece.toLowerCase(), absR= Math.abs(dr - sr), absC = Math.abs(dc - sc);
+    const isWhite = piece === piece.toUpperCase(), pType = piece.toLowerCase(), absR = Math.abs(dr - sr), absC = Math.abs(dc - sc);
     if (target !== '' && isWhite === (target === target.toUpperCase())) return false;
     let valid = false;
     if (pType === 'p') {
@@ -474,7 +491,11 @@ function showPromotion(r, c, isWhite) {
 
 function resetBoard() {
     board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['','','','','','','',''],['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']];
-    turn = 'white'; gameActive = true; whiteTime = 600; blackTime = 600; isAiThinking = false; history = []; lastMove = null; overlay.style.display = 'none';
+    turn = 'white'; gameActive = true; isAiThinking = false; history = []; lastMove = null; overlay.style.display = 'none';
+    
+    // Set correct time limit based on selection
+    whiteTime = timeLimitSeconds; blackTime = timeLimitSeconds; 
+    
     statusElement.innerText = `${player1Name}'s Turn`;
     startTimer(); createBoard(); updateTimerDisplay();
 }
