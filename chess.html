@@ -30,7 +30,7 @@
         .timer { background: #e2e8f0; color: #64748b; padding: 6px 14px; border-radius: 8px; font-family: monospace; font-size: 1.3rem; font-weight: 900; transition: 0.3s; }
         .active-timer { background: #0f172a; color: #fff; box-shadow: 0 5px 15px rgba(15,23,42,0.3); }
 
-        .board-container { background: white; padding: 10px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); }
+        .board-container { background: white; padding: 10px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); position: relative; }
         .board { display: grid; grid-template-columns: repeat(8, 11vw); grid-template-rows: repeat(8, 11vw); border: 3px solid #0f172a; border-radius: 4px; max-width: 360px; max-height: 360px; position: relative; box-sizing: border-box; }
         @media (min-width: 600px) { .board { grid-template-columns: repeat(8, 45px); grid-template-rows: repeat(8, 45px); } }
 
@@ -60,7 +60,8 @@
         input { width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #e2e8f0; text-align: center; display: none; font-weight: bold; font-size: 1rem;}
         input:focus { outline: none; border-color: #38bdf8; }
 
-        .promo-btn { width: 50px; height: 50px; background: white; border: 2px solid #e2e8f0; cursor: pointer; padding: 5px; margin: 5px; border-radius: 12px; }
+        .promo-btn { width: 55px; height: 55px; background: white; border: 2px solid #e2e8f0; cursor: pointer; padding: 5px; margin: 5px; border-radius: 12px; transition: 0.2s;}
+        .promo-btn:hover { border-color: #38bdf8; background: #f0f9ff; transform: scale(1.05); }
         .promo-btn img { width: 100%; height: 100%; }
         
         .controls { display: flex; gap: 10px; margin-top: 20px; width: 100%; max-width: 380px; padding: 0 10px 30px; box-sizing: border-box;}
@@ -111,7 +112,7 @@
 
 <div class="board-container">
     <div id="board" class="board">
-        <div id="game-over-overlay" class="overlay" style="display: none; position: absolute; border-radius:4px;">
+        <div id="game-over-overlay" class="overlay" style="display: none; position: absolute; border-radius:4px; z-index: 50;">
             <h2 id="win-message" style="color:white; margin-bottom:5px; font-size:2rem;">Checkmate</h2>
             <p id="win-subtext" style="color:#10b981; font-weight:900; margin-top:0; font-size:1.2rem;">White Wins</p>
             <div style="display:flex; gap:10px;">
@@ -119,9 +120,9 @@
                 <button class="btn-secondary" onclick="document.getElementById('setup-overlay').style.display='flex'; document.getElementById('game-over-overlay').style.display='none';" style="padding:10px;">Setup</button>
             </div>
         </div>
-        <div id="promo-overlay" class="overlay" style="display: none; position: absolute; border-radius:4px;">
-            <h3 style="color:white; font-weight:900;">Promote</h3>
-            <div id="promo-choices" style="display:flex;"></div>
+        <div id="promo-overlay" class="overlay" style="display: none; position: absolute; border-radius:4px; z-index: 50;">
+            <h3 style="color:white; font-weight:900; margin-top: 0;">Promote Pawn</h3>
+            <div id="promo-choices" style="display:flex; gap: 5px;"></div>
         </div>
     </div>
 </div>
@@ -143,6 +144,7 @@ const boardElement = document.getElementById('board');
 const statusElement = document.getElementById('status');
 const overlay = document.getElementById('game-over-overlay');
 const promoOverlay = document.getElementById('promo-overlay');
+const promoChoices = document.getElementById('promo-choices'); // <--- THIS WAS THE MISSING LINE!
 
 const moveSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
 const captureSfx = new Audio('https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3');
@@ -170,7 +172,6 @@ let whiteTime = 600, blackTime = 600, timerInterval = null, gameActive = false;
 function formatTime(sec) { const m = Math.floor(sec / 60); const s = sec % 60; return `${m}:${s < 10 ? '0' : ''}${s}`; }
 
 function updateTimerDisplay() {
-    // Show Infinity if untimed, otherwise show formatted time
     if (!isTimed) {
         document.getElementById('white-timer').innerText = "∞";
         document.getElementById('black-timer').innerText = "∞";
@@ -179,7 +180,6 @@ function updateTimerDisplay() {
         document.getElementById('black-timer').innerText = formatTime(blackTime);
     }
     
-    // Timer active highlights
     if(turn === 'white') { 
         document.getElementById('white-timer').classList.add('active-timer'); 
         document.getElementById('black-timer').classList.remove('active-timer'); 
@@ -191,7 +191,7 @@ function updateTimerDisplay() {
 
 function startTimer() {
     if (timerInterval) clearInterval(timerInterval);
-    if (!isTimed) return; // Do not start the countdown loop if untimed!
+    if (!isTimed) return; 
     
     timerInterval = setInterval(() => {
         if (!gameActive || isAiThinking) return; 
@@ -351,7 +351,7 @@ function canAttack(sr, sc, dr, dc, p, b) {
 }
 
 function isValidMove(sr, sc, dr, dc, piece, target, b) {
-    const isWhite = piece === piece.toUpperCase(), pType = piece.toLowerCase(), absR = Math.abs(dr - sr), absC = Math.abs(dc - sc);
+    const isWhite = piece === piece.toUpperCase(), pType = piece.toLowerCase(), absR= Math.abs(dr - sr), absC = Math.abs(dc - sc);
     if (target !== '' && isWhite === (target === target.toUpperCase())) return false;
     let valid = false;
     if (pType === 'p') {
