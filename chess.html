@@ -9,19 +9,15 @@
 
     <style>
         :root {
-            --sq-white: #ebecd0; 
-            --sq-black: #779556;
-            --bg-main: #f3f4f6;
-            --grid-color: #e5e7eb;
-            --text-dark: #0f172a;
+            --sq-white: #ebecd0; --sq-black: #779556; --bg-main: #f3f4f6;
+            --grid-color: #e5e7eb; --text-dark: #0f172a;
         }
 
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
             overflow-x: hidden; background-color: var(--bg-main);
             background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 30px 30px;
-            font-family: 'Inter', system-ui, sans-serif;
+            background-size: 30px 30px; font-family: 'Inter', system-ui, sans-serif;
             color: var(--text-dark); display: flex; flex-direction: column; align-items: center;
             touch-action: manipulation; -webkit-text-size-adjust: 100%;
         }
@@ -29,10 +25,7 @@
         header { padding: 15px 10px 5px; text-align: center; }
         .status { font-size: 1.2rem; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: -0.5px; }
 
-        .player-info {
-            width: 100%; max-width: 380px; display: flex; justify-content: space-between; align-items: center;
-            margin: 8px 0; padding: 0 5px; box-sizing: border-box;
-        }
+        .player-info { width: 100%; max-width: 380px; display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 0 5px; box-sizing: border-box; }
         .player-name { font-weight: 800; color: #64748b; font-size: 1.1rem; }
         .timer { background: #e2e8f0; color: #64748b; padding: 6px 14px; border-radius: 8px; font-family: monospace; font-size: 1.3rem; font-weight: 900; transition: 0.3s; }
         .active-timer { background: #0f172a; color: #fff; box-shadow: 0 5px 15px rgba(15,23,42,0.3); }
@@ -51,20 +44,20 @@
         .hint::after { content: ''; width: 25%; height: 25%; background: rgba(0,0,0,0.2); border-radius: 50%; position: absolute; }
         .check { background-color: rgba(239, 68, 68, 0.6) !important; }
 
-        /* MODALS & OVERLAYS */
+        /* MODALS */
         .overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.85); backdrop-filter: blur(5px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; }
-        .modal { background: white; color: #0f172a; padding: 30px; border-radius: 20px; width: 85%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .modal h2 { margin-top: 0; text-transform: uppercase; letter-spacing: -1px; font-weight: 900; font-size: 1.8rem; }
+        .modal { background: white; color: #0f172a; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal h2 { margin-top: 0; text-transform: uppercase; letter-spacing: -1px; font-weight: 900; font-size: 1.8rem; margin-bottom: 15px;}
         
         .mode-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
-        .mode-btn { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.85rem;}
+        .mode-btn { flex: 1; padding: 10px; border-radius: 12px; border: 2px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.8rem;}
         .mode-btn.active { border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); color: #0284c7; }
         
         .diff-toggle { display: none; gap: 5px; margin-bottom: 15px; } 
         .diff-btn { flex: 1; padding: 8px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 0.8rem; font-weight: 800; cursor: pointer; background: #f8fafc; color: #64748b;}
         .diff-btn.active { border-color: #10b981; background: rgba(16, 185, 129, 0.1); color: #059669; }
 
-        input { width: 100%; box-sizing: border-box; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #e2e8f0; text-align: center; display: none; font-weight: bold; font-size: 1rem;}
+        input { width: 100%; box-sizing: border-box; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 2px solid #e2e8f0; text-align: center; display: none; font-weight: bold; font-size: 1rem;}
         input:focus { outline: none; border-color: #38bdf8; }
 
         .promo-btn { width: 50px; height: 50px; background: white; border: 2px solid #e2e8f0; cursor: pointer; padding: 5px; margin: 5px; border-radius: 12px; }
@@ -91,6 +84,11 @@
         <div class="mode-toggle">
             <button class="mode-btn active" id="btn-ai" onclick="selectMode('ai')">VS Computer</button>
             <button class="mode-btn" id="btn-pvp" onclick="selectMode('pvp')">2 Players</button>
+        </div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="btn-timed-yes" onclick="selectTime(true)">Timed (10m)</button>
+            <button class="mode-btn" id="btn-timed-no" onclick="selectTime(false)">No Time Limit</button>
         </div>
 
         <div class="diff-toggle" id="diff-selector" style="display: flex;">
@@ -163,26 +161,43 @@ let board = [['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p']
 let turn = 'white', selectedSquare = null, enPassantTarget = null, history = [], lastMove = null;
 let moveFlags = { whiteKing: false, blackKing: false, whiteRookA: false, whiteRookH: false, blackRookA: false, blackRookH: false };
 
-let gameMode = 'ai', aiDifficulty = 'easy', isAiThinking = false;
+let gameMode = 'ai', aiDifficulty = 'easy', isTimed = true, isAiThinking = false;
 let player1Name = localStorage.getItem("user") || "Player 1";
 let player2Name = "Computer";
 
 let whiteTime = 600, blackTime = 600, timerInterval = null, gameActive = false;
 
 function formatTime(sec) { const m = Math.floor(sec / 60); const s = sec % 60; return `${m}:${s < 10 ? '0' : ''}${s}`; }
+
 function updateTimerDisplay() {
-    document.getElementById('white-timer').innerText = formatTime(whiteTime);
-    document.getElementById('black-timer').innerText = formatTime(blackTime);
-    if(turn === 'white') { document.getElementById('white-timer').classList.add('active-timer'); document.getElementById('black-timer').classList.remove('active-timer'); } 
-    else { document.getElementById('black-timer').classList.add('active-timer'); document.getElementById('white-timer').classList.remove('active-timer'); }
+    // Show Infinity if untimed, otherwise show formatted time
+    if (!isTimed) {
+        document.getElementById('white-timer').innerText = "∞";
+        document.getElementById('black-timer').innerText = "∞";
+    } else {
+        document.getElementById('white-timer').innerText = formatTime(whiteTime);
+        document.getElementById('black-timer').innerText = formatTime(blackTime);
+    }
+    
+    // Timer active highlights
+    if(turn === 'white') { 
+        document.getElementById('white-timer').classList.add('active-timer'); 
+        document.getElementById('black-timer').classList.remove('active-timer'); 
+    } else { 
+        document.getElementById('black-timer').classList.add('active-timer'); 
+        document.getElementById('white-timer').classList.remove('active-timer'); 
+    }
 }
 
 function startTimer() {
     if (timerInterval) clearInterval(timerInterval);
+    if (!isTimed) return; // Do not start the countdown loop if untimed!
+    
     timerInterval = setInterval(() => {
         if (!gameActive || isAiThinking) return; 
         if (turn === 'white') whiteTime--; else blackTime--;
         updateTimerDisplay();
+        
         if (whiteTime <= 0 || blackTime <= 0) {
             gameActive = false; clearInterval(timerInterval); overlay.style.display = 'flex';
             document.getElementById('win-message').innerText = "Timeout!";
@@ -191,12 +206,19 @@ function startTimer() {
     }, 1000);
 }
 
+// SETUP LOGIC
 function selectMode(mode) {
     gameMode = mode;
     document.getElementById('btn-ai').classList.toggle('active', mode === 'ai');
     document.getElementById('btn-pvp').classList.toggle('active', mode === 'pvp');
     document.getElementById('diff-selector').style.display = mode === 'ai' ? 'flex' : 'none';
     document.getElementById('p2-name').style.display = mode === 'pvp' ? 'block' : 'none';
+}
+
+function selectTime(timed) {
+    isTimed = timed;
+    document.getElementById('btn-timed-yes').classList.toggle('active', timed === true);
+    document.getElementById('btn-timed-no').classList.toggle('active', timed === false);
 }
 
 function selectDiff(level) {
@@ -258,8 +280,8 @@ function executeMove(sr, sc, dr, dc, p, isAiAutoPromote = false) {
     saveHistory();
     const pType = p.toLowerCase();
     let captured = board[dr][dc] !== '';
-    if (pType === 'p' && Math.abs(dc - sc) === 1 && board[dr][dc] === '') { board[sr][dc] = ''; captured = true; } // En Passant
-    if (pType === 'k' && Math.abs(dc - sc) === 2) { // Castling
+    if (pType === 'p' && Math.abs(dc - sc) === 1 && board[dr][dc] === '') { board[sr][dc] = ''; captured = true; } 
+    if (pType === 'k' && Math.abs(dc - sc) === 2) { 
         if (dc === 6) { board[sr][5] = board[sr][7]; board[sr][7] = ''; }
         if (dc === 2) { board[sr][3] = board[sr][0]; board[sr][0] = ''; }
     }
@@ -383,7 +405,7 @@ function isGameOver() {
     return true;
 }
 
-// AI MODULE
+// AI LOGIC
 function getAllValidMoves(color) {
     let moves = [];
     for (let r = 0; r < 8; r++) {
