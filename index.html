@@ -9,141 +9,116 @@
 
     <style>
         :root {
-            /* Light Gaming Theme Variables */
+            /* DEFAULT LIGHT THEME */
             --bg-main: #f3f4f6;
             --grid-color: #e5e7eb;
             --card-bg: #ffffff;
             --text-dark: #0f172a;
             --text-gray: #64748b;
+            --nav-bg: #f1f5f9;
             
-            /* High-Energy Gaming Gradients */
             --grad-calc: linear-gradient(135deg, #ff007a, #7928ca);
             --grad-ttt: linear-gradient(135deg, #00d2ff, #3a7bd5);
             --grad-bird: linear-gradient(135deg, #fceabb, #f8b500);
             --grad-chess: linear-gradient(135deg, #434343, #000000);
         }
 
-        /* Base & E-sports Grid Background */
+        /* GLOBAL DARK THEME OVERRIDES */
+        body.dark-mode {
+            --bg-main: #0f172a;          /* Deep Slate */
+            --grid-color: #1e293b;       /* Darker Grid */
+            --card-bg: #1e293b;          /* Dark Cards */
+            --text-dark: #f8fafc;        /* White Text */
+            --text-gray: #94a3b8;        /* Light Gray Text */
+            --nav-bg: #334155;           /* Dark Buttons */
+            --grad-chess: linear-gradient(135deg, #94a3b8, #e2e8f0); /* Make chess icon light in dark mode */
+        }
+
         html, body {
             margin: 0; padding: 0; width: 100%; min-height: 100%;
             background-color: var(--bg-main);
             background-image: 
                 linear-gradient(var(--grid-color) 1px, transparent 1px),
                 linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 30px 30px; /* Creates the console gaming grid */
+            background-size: 30px 30px;
             font-family: 'Inter', system-ui, sans-serif;
             color: var(--text-dark);
             overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.4s ease, color 0.4s ease; /* Smooth transition */
         }
 
-        /* GAMER TAG HEADER */
-        header {
-            max-width: 1000px; margin: 0 auto; padding: 60px 20px 30px;
-            display: flex; justify-content: space-between; align-items: center;
+        /* HANGING LIGHTBULB TOGGLE */
+        .lightbulb-wrapper {
+            position: absolute; top: 0; right: 25px;
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; z-index: 1000;
+            -webkit-tap-highlight-color: transparent;
         }
+        .wire {
+            width: 3px; height: 50px; background: var(--text-dark);
+            transition: height 0.2s, background 0.4s;
+        }
+        .lightbulb-wrapper:active .wire { height: 60px; /* Pull effect */ }
+        .bulb-svg {
+            width: 35px; height: 35px; fill: transparent; stroke: var(--text-dark);
+            stroke-width: 2; transition: 0.4s; margin-top: -2px;
+        }
+        body.dark-mode .bulb-svg {
+            fill: #f8b500; stroke: #f8b500;
+            filter: drop-shadow(0 0 15px rgba(248, 181, 0, 0.8)); /* Glow effect when dark */
+        }
+
+        header { max-width: 1000px; margin: 0 auto; padding: 60px 20px 30px; display: flex; justify-content: space-between; align-items: center; }
         .header-left { display: flex; flex-direction: column; }
-        .system-status { 
-            color: #10b981; font-weight: 800; font-size: 0.85rem; 
-            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; 
-            display: flex; align-items: center; gap: 6px;
-        }
-        .system-status::before {
-            content: ''; width: 8px; height: 8px; background: #10b981; 
-            border-radius: 50%; box-shadow: 0 0 10px #10b981; animation: blink 2s infinite;
-        }
+        .system-status { color: #10b981; font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .system-status::before { content: ''; width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; animation: blink 2s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         
         .player-tag { font-size: 2.5rem; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -1px; }
         .player-tag span { background: var(--grad-ttt); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .avatar {
-            width: 60px; height: 60px; border-radius: 14px;
-            background: white; border: 3px solid white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            display: flex; justify-content: center; align-items: center;
-            font-size: 28px; font-weight: 900; color: #0f172a;
-            position: relative;
-        }
-        /* Level Badge */
-        .avatar::after {
-            content: 'Lv.99'; position: absolute; bottom: -10px; right: -10px;
-            background: #0f172a; color: white; font-size: 10px; font-weight: 800;
-            padding: 3px 6px; border-radius: 6px; border: 2px solid white;
-        }
+        .avatar { width: 60px; height: 60px; border-radius: 14px; background: var(--card-bg); border: 3px solid var(--text-dark); box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; font-size: 28px; font-weight: 900; color: var(--text-dark); position: relative; transition: 0.4s; }
+        .avatar::after { content: 'Lv.99'; position: absolute; bottom: -10px; right: -10px; background: var(--text-dark); color: var(--bg-main); font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 6px; border: 2px solid var(--card-bg); transition: 0.4s; }
 
-        /* GAME GRID */
-        .container {
-            max-width: 1000px; margin: 0 auto; padding: 0 20px 60px;
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px;
-        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px; }
 
-        /* CONSOLE STYLE CARDS */
-        .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 25px;
-            display: flex; flex-direction: column;
-            text-decoration: none; color: inherit;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            border: 2px solid transparent;
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            z-index: 1;
-        }
-
-        /* Vibrant Hover Effects */
+        .card { background: var(--card-bg); border-radius: 20px; padding: 25px; display: flex; flex-direction: column; text-decoration: none; color: inherit; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 2px solid transparent; transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
         .card:hover { transform: translateY(-10px) scale(1.02); z-index: 2; }
         .card.calc:hover { border-color: #ff007a; box-shadow: 0 20px 40px rgba(255, 0, 122, 0.2); }
         .card.ttt:hover { border-color: #00d2ff; box-shadow: 0 20px 40px rgba(0, 210, 255, 0.2); }
         .card.bird:hover { border-color: #f8b500; box-shadow: 0 20px 40px rgba(248, 181, 0, 0.2); }
-        .card.chess:hover { border-color: #0f172a; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2); }
+        .card.chess:hover { border-color: var(--text-dark); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2); }
 
-        /* NEXT LEVEL LOGO BADGES */
-        .logo-badge {
-            width: 80px; height: 80px; border-radius: 20px;
-            margin-bottom: 20px; position: relative;
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3), 0 15px 25px rgba(0,0,0,0.15);
-        }
-        .logo-badge::before {
-            content: ''; position: absolute; inset: 0; border-radius: 20px;
-            background: inherit; filter: blur(15px); opacity: 0.6; z-index: -1;
-            transition: 0.3s;
-        }
+        .logo-badge { width: 80px; height: 80px; border-radius: 20px; margin-bottom: 20px; position: relative; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3), 0 15px 25px rgba(0,0,0,0.15); }
+        .logo-badge::before { content: ''; position: absolute; inset: 0; border-radius: 20px; background: inherit; filter: blur(15px); opacity: 0.6; z-index: -1; transition: 0.3s; }
         .card:hover .logo-badge::before { opacity: 1; filter: blur(20px); }
-        
         .logo-badge svg { width: 50px; height: 50px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: 0.3s; }
         .card:hover .logo-badge svg { transform: scale(1.1) rotate(5deg); }
 
-        .logo-calc { background: var(--grad-calc); }
-        .logo-ttt { background: var(--grad-ttt); }
-        .logo-bird { background: var(--grad-bird); }
-        .logo-chess { background: var(--grad-chess); }
+        .logo-calc { background: var(--grad-calc); } .logo-ttt { background: var(--grad-ttt); } .logo-bird { background: var(--grad-bird); } .logo-chess { background: var(--grad-chess); }
 
         .card h3 { font-size: 1.5rem; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px; }
-        .card p { font-size: 0.95rem; color: var(--text-gray); margin: 0 0 30px 0; line-height: 1.5; font-weight: 500; flex-grow: 1; }
+        .card p { font-size: 0.95rem; color: var(--text-gray); margin: 0 0 30px 0; line-height: 1.5; font-weight: 500; flex-grow: 1; transition: 0.4s;}
 
-        /* GAMING BUTTONS */
-        .play-btn {
-            background: #f1f5f9; color: var(--text-dark);
-            font-weight: 800; font-size: 0.9rem; text-transform: uppercase;
-            padding: 14px; border-radius: 12px; text-align: center;
-            transition: 0.3s; display: flex; justify-content: space-between; align-items: center;
-        }
-        .play-btn span { font-size: 1.2rem; }
-        
+        .play-btn { background: var(--nav-bg); color: var(--text-dark); font-weight: 800; font-size: 0.9rem; text-transform: uppercase; padding: 14px; border-radius: 12px; text-align: center; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
         .card.calc:hover .play-btn { background: var(--grad-calc); color: white; }
         .card.ttt:hover .play-btn { background: var(--grad-ttt); color: white; }
         .card.bird:hover .play-btn { background: var(--grad-bird); color: white; }
         .card.chess:hover .play-btn { background: var(--grad-chess); color: white; }
 
         footer { text-align: center; padding: 20px; }
-        .logout-btn { background: white; color: #ef4444; border: 2px solid #ef4444; padding: 12px 30px; border-radius: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.1); }
+        .logout-btn { background: var(--card-bg); color: #ef4444; border: 2px solid #ef4444; padding: 12px 30px; border-radius: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
         .logout-btn:hover { background: #ef4444; color: white; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3); transform: translateY(-3px); }
     </style>
 </head>
 <body>
+
+<div class="lightbulb-wrapper" onclick="toggleTheme()">
+    <div class="wire"></div>
+    <svg class="bulb-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 21h6v-1H9v1zm3-19C7.58 2 4 5.58 4 10c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-1.26c1.81-1.27 3-3.36 3-5.74 0-4.42-3.58-8-8-8z" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+</div>
 
 <header>
     <div class="header-left">
@@ -154,59 +129,22 @@
 </header>
 
 <div class="container">
-    
     <a href="calculator.html" class="card calc">
-        <div class="logo-badge logo-calc">
-            <svg viewBox="0 0 100 100">
-                <rect x="20" y="15" width="60" height="70" rx="12" fill="none" stroke="white" stroke-width="6"/>
-                <path d="M35 35h30M35 50h30M35 65h10M55 65h10" stroke="white" stroke-width="6" stroke-linecap="round"/>
-                <circle cx="50" cy="15" r="4" fill="white"/>
-            </svg>
-        </div>
-        <h3>Calculator</h3>
-        <p>High-speed mathematical engine. Crunch numbers with fluid precision.</p>
-        <div class="play-btn">Launch App <span>→</span></div>
+        <div class="logo-badge logo-calc"><svg viewBox="0 0 100 100"><rect x="20" y="15" width="60" height="70" rx="12" fill="none" stroke="white" stroke-width="6"/><path d="M35 35h30M35 50h30M35 65h10M55 65h10" stroke="white" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="15" r="4" fill="white"/></svg></div>
+        <h3>Calculator</h3><p>High-speed mathematical engine. Crunch numbers with fluid precision.</p><div class="play-btn">Launch App <span>→</span></div>
     </a>
-
     <a href="tictactoe.html" class="card ttt">
-        <div class="logo-badge logo-ttt">
-            <svg viewBox="0 0 100 100">
-                <path d="M25 25l50 50M75 25L25 75" stroke="white" stroke-width="12" stroke-linecap="round"/>
-                <circle cx="50" cy="50" r="30" fill="none" stroke="white" stroke-width="8" stroke-dasharray="20 10"/>
-            </svg>
-        </div>
-        <h3>Tic Tac Toe</h3>
-        <p>1v1 tactical arena. Outsmart the AI in this fast-paced logic duel.</p>
-        <div class="play-btn">Play Match <span>→</span></div>
+        <div class="logo-badge logo-ttt"><svg viewBox="0 0 100 100"><path d="M25 25l50 50M75 25L25 75" stroke="white" stroke-width="12" stroke-linecap="round"/><circle cx="50" cy="50" r="30" fill="none" stroke="white" stroke-width="8" stroke-dasharray="20 10"/></svg></div>
+        <h3>Tic Tac Toe</h3><p>1v1 tactical arena. Outsmart the AI in this fast-paced logic duel.</p><div class="play-btn">Play Match <span>→</span></div>
     </a>
-
     <a href="flappy.html" class="card bird">
-        <div class="logo-badge logo-bird">
-            <svg viewBox="0 0 100 100">
-                <path d="M30 50 Q50 20 70 50 Q80 60 70 70 Q50 80 30 70 Z" fill="white"/>
-                <circle cx="65" cy="45" r="5" fill="#f8b500"/>
-                <path d="M20 50 Q10 40 20 30" fill="none" stroke="white" stroke-width="6" stroke-linecap="round"/>
-            </svg>
-        </div>
-        <h3>Flappy Bird</h3>
-        <p>Retro arcade physics challenge. Navigate the endless pipe gauntlet.</p>
-        <div class="play-btn">Start Game <span>→</span></div>
+        <div class="logo-badge logo-bird"><svg viewBox="0 0 100 100"><path d="M30 50 Q50 20 70 50 Q80 60 70 70 Q50 80 30 70 Z" fill="white"/><circle cx="65" cy="45" r="5" fill="#f8b500"/><path d="M20 50 Q10 40 20 30" fill="none" stroke="white" stroke-width="6" stroke-linecap="round"/></svg></div>
+        <h3>Flappy Bird</h3><p>Retro arcade physics challenge. Navigate the endless pipe gauntlet.</p><div class="play-btn">Start Game <span>→</span></div>
     </a>
-
     <a href="chess.html" class="card chess">
-        <div class="logo-badge logo-chess">
-            <svg viewBox="0 0 100 100">
-                <path d="M20 75 L80 75 L70 30 L50 50 L30 30 Z" fill="white" stroke="white" stroke-width="5" stroke-linejoin="round"/>
-                <circle cx="30" cy="25" r="6" fill="white"/>
-                <circle cx="50" cy="45" r="6" fill="white"/>
-                <circle cx="70" cy="25" r="6" fill="white"/>
-            </svg>
-        </div>
-        <h3>Pro Chess</h3>
-        <p>Grandmaster engine. Timers, match logs, and tournament-grade rules.</p>
-        <div class="play-btn">Enter Arena <span>→</span></div>
+        <div class="logo-badge logo-chess"><svg viewBox="0 0 100 100"><path d="M20 75 L80 75 L70 30 L50 50 L30 30 Z" fill="white" stroke="white" stroke-width="5" stroke-linejoin="round"/><circle cx="30" cy="25" r="6" fill="white"/><circle cx="50" cy="45" r="6" fill="white"/><circle cx="70" cy="25" r="6" fill="white"/></svg></div>
+        <h3>Pro Chess</h3><p>Grandmaster engine. Timers, match logs, and tournament-grade rules.</p><div class="play-btn">Enter Arena <span>→</span></div>
     </a>
-
 </div>
 
 <footer>
@@ -214,6 +152,25 @@
 </footer>
 
 <script>
+    // --- THEME ENGINE ---
+    // 1. Check if user already saved a theme preference
+    if(localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+
+    // 2. Toggle Theme function (Attached to Lightbulb)
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        
+        // Save the choice to localStorage so it applies to the other apps!
+        if(document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // --- SYSTEM LOGIC ---
     if(localStorage.getItem("loggedIn") !== "true"){
         window.location.replace("login.html");
     } else {
@@ -222,7 +179,7 @@
     }
 
     function logout(){
-        localStorage.clear();
+        localStorage.clear(); // Wipes name AND theme preference
         window.location.replace("login.html");
     }
 </script>
