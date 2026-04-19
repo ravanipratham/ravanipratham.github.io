@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ludo | Pratham Hub</title>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23ffffff'/><path d='M35 25h20c15 0 20 10 20 17.5S70 60 55 60H45v15h-10V25zm10 25h10c5 0 10-2 10-7.5s-5-7.5-10-7.5H45v15z' fill='%2338bdf8'/></svg>">
+
+    <style>
+        :root {
+            --bg-main: #f3f4f6;
+            --grid-color: #e5e7eb;
+            --text-dark: #0f172a;
+            
+            /* Ludo Specific Colors */
+            --l-red: #ef4444;
+            --l-green: #10b981;
+            --l-yellow: #f59e0b;
+            --l-blue: #3b82f6;
+            --safe-col: #cbd5e1;
+            --board-bg: #ffffff;
+        }
+
+        /* Hub Theme Support */
+        body.gaming-mode {
+            --bg-main: #0f172a;
+            --grid-color: #1e293b;
+            --text-dark: #f8fafc;
+            --board-bg: #cbd5e1;
+        }
+
+        html, body {
+            margin: 0; padding: 0; width: 100%; min-height: 100%;
+            background-color: var(--bg-main);
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+            touch-action: manipulation;
+        }
+
+        header { padding: 20px 10px 10px; text-align: center; }
+        .turn-indicator { font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; padding: 8px 16px; border-radius: 8px; color: white; transition: 0.3s;}
+        
+        .board-container {
+            background: var(--board-bg);
+            padding: 10px; border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 2px solid var(--text-dark);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            width: 95vw; max-width: 400px;
+            height: 95vw; max-height: 400px;
+            gap: 1px; background: #64748b;
+            border: 2px solid #0f172a;
+        }
+
+        .cell {
+            background: white;
+            display: flex; justify-content: center; align-items: center;
+            position: relative; flex-wrap: wrap; gap: 2px;
+        }
+
+        /* Base Areas */
+        .base-red { background: var(--l-red); }
+        .base-green { background: var(--l-green); }
+        .base-yellow { background: var(--l-yellow); }
+        .base-blue { background: var(--l-blue); }
+
+        .base-inner {
+            background: white; width: 60%; height: 60%;
+            border-radius: 12px; display: grid;
+            grid-template-columns: 1fr 1fr; gap: 5px; padding: 5px;
+        }
+
+        /* Home Stretches & Starts */
+        .path-red { background: rgba(239, 68, 68, 0.4); }
+        .path-green { background: rgba(16, 185, 129, 0.4); }
+        .path-yellow { background: rgba(245, 158, 11, 0.4); }
+        .path-blue { background: rgba(59, 130, 246, 0.4); }
+        .safe-zone { background: var(--safe-col); }
+        .center-home { background: #0f172a; }
+
+        /* Tokens */
+        .token {
+            width: 70%; height: 70%; border-radius: 50%;
+            border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            cursor: pointer; transition: 0.2s transform;
+            z-index: 10;
+        }
+        .token:active { transform: scale(0.8); }
+        .token-red { background: var(--l-red); }
+        .token-green { background: var(--l-green); }
+        .token-yellow { background: var(--l-yellow); }
+        .token-blue { background: var(--l-blue); }
+
+        /* Multiple tokens in one cell */
+        .cell .token:nth-child(n+2) { width: 45%; height: 45%; border-width: 1px; }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; width: 100%; max-width: 400px; padding: 0 10px; box-sizing: border-box; align-items: center; }
+        .dice-box {
+            width: 60px; height: 60px; background: white; border: 3px solid #0f172a;
+            border-radius: 12px; display: flex; justify-content: center; align-items: center;
+            font-size: 2rem; font-weight: 900; box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        .dice-btn {
+            flex-grow: 1; padding: 15px; border-radius: 12px; border: none;
+            background: var(--text-dark); color: var(--bg-main); font-weight: 900;
+            text-transform: uppercase; font-size: 1.1rem; cursor: pointer; transition: 0.2s;
+        }
+        .dice-btn:active { transform: translateY(4px); }
+        .dice-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-hub { margin-top: 20px; padding: 12px 25px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; color: var(--text-dark); font-weight: 800; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="turn-indicator" id="turn-banner" style="background: var(--l-red);">Red's Turn</div>
+</header>
+
+<div class="board-container">
+    <div class="board" id="board">
+        </div>
+</div>
+
+<div class="controls">
+    <div class="dice-box" id="dice-display">-</div>
+    <button class="dice-btn" id="roll-btn" onclick="rollDice()">Roll Dice</button>
+</div>
+
+<button class="btn-hub" onclick="location.href='index.html'">Exit to Hub</button>
+
+<script>
+    if(localStorage.getItem('theme') === 'dark') document.body.classList.add('gaming-mode');
+    if(localStorage.getItem("loggedIn") !== "true") window.location.replace("login.html");
+
+    // --- BOARD MAPPING ---
+    // 52 steps of the main perimeter path clockwise
+    const mainPath = [
+        [6,1],[6,2],[6,3],[6,4],[6,5], [5,6],[4,6],[3,6],[2,6],[1,6],[0,6], [0,7],
+        [0,8],[1,8],[2,8],[3,8],[4,8],[5,8], [6,9],[6,10],[6,11],[6,12],[6,13],[6,14], [7,14],
+        [8,14],[8,13],[8,12],[8,11],[8,10],[8,9], [9,8],[10,8],[11,8],[12,8],[13,8],[14,8], [14,7],
+        [14,6],[13,6],[12,6],[11,6],[10,6],[9,6], [8,5],[8,4],[8,3],[8,2],[8,1],[8,0], [7,0]
+    ];
+    
+    // Indices on mainPath that are safe spots
+    const safeSpots = [0, 8, 13, 21, 26, 34, 39, 47]; 
+
+    // Specific player data
+    const players = {
+        red: { color: '--l-red', offset: 0, home: [[7,1],[7,2],[7,3],[7,4],[7,5]], bases: [[2,2],[2,3],[3,2],[3,3]] },
+        green: { color: '--l-green', offset: 13, home: [[1,7],[2,7],[3,7],[4,7],[5,7]], bases: [[2,11],[2,12],[3,11],[3,12]] },
+        yellow: { color: '--l-yellow', offset: 26, home: [[7,13],[7,12],[7,11],[7,10],[7,9]], bases: [[11,11],[11,12],[12,11],[12,12]] },
+        blue: { color: '--l-blue', offset: 39, home: [[13,7],[12,7],[11,7],[10,7],[9,7]], bases: [[11,2],[11,3],[12,2],[12,3]] }
+    };
+
+    // State
+    const turnOrder = ['red', 'green', 'yellow', 'blue'];
+    let currentTurnIdx = 0;
+    let diceValue = null;
+    let hasRolled = false;
+
+    // Tokens state: -1 is base, 0-50 is main path, 51-55 is home path, 999 is finished.
+    let tokens = {
+        red: [-1, -1, -1, -1],
+        green: [-1, -1, -1, -1],
+        yellow: [-1, -1, -1, -1],
+        blue: [-1, -1, -1, -1]
+    };
+
+    // --- INITIALIZE UI ---
+    function createBoard() {
+        const board = document.getElementById('board');
+        board.innerHTML = '';
+
+        // Create 15x15 grid cells
+        for(let r=0; r<15; r++) {
+            for(let c=0; c<15; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = `cell-${r}-${c}`;
+
+                // Color Bases
+                if (r<6 && c<6) cell.classList.add('base-red');
+                else if (r<6 && c>8) cell.classList.add('base-green');
+                else if (r>8 && c>8) cell.classList.add('base-yellow');
+                else if (r>8 && c<6) cell.classList.add('base-blue');
+                // Color Center
+                else if (r>=6 && r<=8 && c>=6 && c<=8) cell.classList.add('center-home');
+                
+                // Color Home Paths & Safes
+                players.red.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-red'); });
+                players.green.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-green'); });
+                players.yellow.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-yellow'); });
+                players.blue.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-blue'); });
+                
+                safeSpots.forEach(idx => {
+                    const [sr, sc] = mainPath[idx];
+                    if (r===sr && c===sc) cell.classList.add('safe-zone');
+                });
+
+                board.appendChild(cell);
+            }
+        }
+        renderTokens();
+    }
+
+    function renderTokens() {
+        // Clear old tokens
+        document.querySelectorAll('.token').forEach(t => t.remove());
+
+        Object.keys(tokens).forEach(color => {
+            tokens[color].forEach((pos, i) => {
+                if(pos === 999) return; // Token has finished
+
+                let targetCell;
+                if (pos === -1) {
+                    // In Base
+                    const [r, c] = players[color].bases[i];
+                    targetCell = document.getElementById(`cell-${r}-${c}`);
+                } else if (pos <= 50) {
+                    // On Main Path
+                    const actualIdx = (pos + players[color].offset) % 52;
+                    const [r, c] = mainPath[actualIdx];
+                    targetCell = document.getElementById(`cell-${r}-${c}`);
+                } else {
+                    // On Home Path
+                    const homeIdx = pos - 51;
+                    const [r, c] = players[color].home[homeIdx];
+                    targetCell = document.getElementById(`cell-${r}-${c}`);
+                }
+
+                if (targetCell) {
+                    const t = document.createElement('div');
+                    t.className = `token token-${color}`;
+                    t.onclick = () => handleTokenClick(color, i);
+                    targetCell.appendChild(t);
+                }
+            });
+        });
+    }
+
+    // --- GAME LOGIC ---
+    function rollDice() {
+        if (hasRolled) return;
+        
+        diceValue = Math.floor(Math.random() * 6) + 1;
+        document.getElementById('dice-display').innerText = diceValue;
+        hasRolled = true;
+        document.getElementById('roll-btn').disabled = true;
+
+        checkPossibleMoves();
+    }
+
+    function checkPossibleMoves() {
+        const turn = turnOrder[currentTurnIdx];
+        const myTokens = tokens[turn];
+        let canMove = false;
+
+        myTokens.forEach((pos) => {
+            if (pos === -1 && diceValue === 6) canMove = true; // Can unlock
+            if (pos !== -1 && pos !== 999 && pos + diceValue <= 56) canMove = true; // Can walk
+        });
+
+        if (!canMove) {
+            setTimeout(nextTurn, 800);
+        }
+    }
+
+    function handleTokenClick(color, tokenIdx) {
+        if (!hasRolled || color !== turnOrder[currentTurnIdx]) return;
+
+        let pos = tokens[color][tokenIdx];
+
+        // Unlock from Base
+        if (pos === -1) {
+            if (diceValue === 6) {
+                tokens[color][tokenIdx] = 0;
+                finishMove(false);
+            }
+            return;
+        }
+
+        // Standard Move
+        if (pos + diceValue <= 56) {
+            tokens[color][tokenIdx] += diceValue;
+            let captured = checkCapture(color, tokenIdx);
+            
+            // Check if reached absolute center
+            if (tokens[color][tokenIdx] === 56) {
+                tokens[color][tokenIdx] = 999;
+                checkWinCondition(color);
+            }
+
+            // Get another turn if captured or rolled 6, else next turn
+            finishMove(captured || diceValue === 6);
+        }
+    }
+
+    function checkCapture(color, tokenIdx) {
+        let currentPos = tokens[color][tokenIdx];
+        if (currentPos > 50) return false; // In home path, safe.
+
+        const globalPos = (currentPos + players[color].offset) % 52;
+        if (safeSpots.includes(globalPos)) return false; // On star, safe.
+
+        let captured = false;
+        Object.keys(tokens).forEach(enemyColor => {
+            if (enemyColor !== color) {
+                tokens[enemyColor].forEach((enemyPos, eIdx) => {
+                    if (enemyPos >= 0 && enemyPos <= 50) {
+                        const enemyGlobalPos = (enemyPos + players[enemyColor].offset) % 52;
+                        if (globalPos === enemyGlobalPos) {
+                            tokens[enemyColor][eIdx] = -1; // Send to base
+                            captured = true;
+                        }
+                    }
+                });
+            }
+        });
+        return captured;
+    }
+
+    function finishMove(grantExtraTurn) {
+        renderTokens();
+        if (!grantExtraTurn) {
+            nextTurn();
+        } else {
+            hasRolled = false;
+            document.getElementById('dice-display').innerText = '-';
+            document.getElementById('roll-btn').disabled = false;
+        }
+    }
+
+    function nextTurn() {
+        currentTurnIdx = (currentTurnIdx + 1) % 4;
+        hasRolled = false;
+        diceValue = null;
+        
+        const nextColor = turnOrder[currentTurnIdx];
+        document.getElementById('dice-display').innerText = '-';
+        document.getElementById('roll-btn').disabled = false;
+        
+        const banner = document.getElementById('turn-banner');
+        banner.innerText = `${nextColor}'s Turn`;
+        banner.style.background = `var(--l-${nextColor})`;
+    }
+
+    function checkWinCondition(color) {
+        const allHome = tokens[color].every(p => p === 999);
+        if (allHome) {
+            alert(`${color.toUpperCase()} Wins!`);
+            // Add XP Reward here if tying into the Hub ecosystem
+            let xp = parseInt(localStorage.getItem("userXP") || "0");
+            localStorage.setItem("userXP", xp + 150);
+            
+            // Restart game
+            tokens = { red: [-1,-1,-1,-1], green: [-1,-1,-1,-1], yellow: [-1,-1,-1,-1], blue: [-1,-1,-1,-1] };
+            currentTurnIdx = 0;
+            renderTokens();
+        }
+    }
+
+    // Start Game
+    createBoard();
+</script>
+
+</body>
+</html>
