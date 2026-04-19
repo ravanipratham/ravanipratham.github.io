@@ -3,83 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ludo Pro | Pratham Hub</title>
-
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%23ffffff'/><path d='M35 25h20c15 0 20 10 20 17.5S70 60 55 60H45v15h-10V25zm10 25h10c5 0 10-2 10-7.5s-5-7.5-10-7.5H45v15z' fill='%2338bdf8'/></svg>">
-
+    <title>Ludo Classic | Pratham Hub</title>
     <style>
         :root {
-            --bg-main: #f3f4f6;
-            --grid-color: #e5e7eb;
-            --text-dark: #0f172a;
-            
-            --l-red: #ef4444; --l-green: #10b981; 
-            --l-yellow: #f59e0b; --l-blue: #3b82f6;
-            --safe-col: #cbd5e1; --board-bg: #ffffff;
-        }
-
-        body.gaming-mode {
-            --bg-main: #0f172a; --grid-color: #1e293b;
-            --text-dark: #f8fafc; --board-bg: #cbd5e1;
+            /* Vintage Board Textures */
+            --bg-main: #2C1A0B; --board-wood: #4A2E15; --grid-color: #3e2723;
+            --board-bg: #FAF0E6; --safe-col: #E8DCC4; --text-dark: #f8fafc;
+            /* Classic Rich Colors */
+            --l-red: #B22222; --l-green: #228B22; 
+            --l-yellow: #DAA520; --l-blue: #4169E1;
         }
 
         html, body {
             margin: 0; padding: 0; width: 100%; min-height: 100%;
-            background-color: var(--bg-main);
-            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 30px 30px;
-            font-family: 'Inter', system-ui, sans-serif;
-            display: flex; flex-direction: column; align-items: center;
-            touch-action: manipulation;
+            background-color: var(--bg-main); font-family: 'Inter', system-ui, sans-serif;
+            display: flex; flex-direction: column; align-items: center; touch-action: manipulation;
         }
 
         header { padding: 15px 10px 5px; text-align: center; }
-        .turn-indicator { font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; padding: 8px 16px; border-radius: 8px; color: white; transition: 0.3s; display: inline-block;}
-        .msg-board { font-size: 0.85rem; font-weight: 700; color: var(--text-dark); height: 20px; margin-bottom: 5px;}
+        .turn-indicator { font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; padding: 8px 16px; border-radius: 4px; color: white; border: 2px solid rgba(0,0,0,0.3); box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
+        .msg-board { font-size: 0.85rem; font-weight: 700; color: #E8DCC4; height: 20px; margin-bottom: 5px;}
 
-        /* BOARD */
-        .board-container { background: var(--board-bg); padding: 10px; border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-bottom: 10px; border: 2px solid var(--text-dark); }
-        .board { display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr); width: 95vw; max-width: 380px; height: 95vw; max-height: 380px; gap: 1px; background: #64748b; border: 2px solid #0f172a; }
-        .cell { background: white; display: flex; justify-content: center; align-items: center; position: relative; flex-wrap: wrap; gap: 2px; }
-
-        .base-red { background: var(--l-red); } .base-green { background: var(--l-green); }
-        .base-yellow { background: var(--l-yellow); } .base-blue { background: var(--l-blue); }
-        .path-red { background: rgba(239, 68, 68, 0.4); } .path-green { background: rgba(16, 185, 129, 0.4); }
-        .path-yellow { background: rgba(245, 158, 11, 0.4); } .path-blue { background: rgba(59, 130, 246, 0.4); }
+        /* VINTAGE BOARD CONTAINER */
+        .board-container { background: var(--board-wood); padding: 15px; border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 15px rgba(0,0,0,0.8); margin-bottom: 15px; border: 3px solid #241407; }
+        .board { display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr); width: 95vw; max-width: 380px; height: 95vw; max-height: 380px; gap: 1px; background: #8c7355; border: 2px solid #000; }
+        
+        .cell { background: #fffdf5; display: flex; justify-content: center; align-items: center; position: relative; flex-wrap: wrap; gap: 2px; box-shadow: inset 0 0 3px rgba(0,0,0,0.1);}
+        
+        /* BASES & PATHS */
+        .base-red { background: var(--l-red); box-shadow: inset 0 0 20px rgba(0,0,0,0.4); } 
+        .base-green { background: var(--l-green); box-shadow: inset 0 0 20px rgba(0,0,0,0.4);}
+        .base-yellow { background: var(--l-yellow); box-shadow: inset 0 0 20px rgba(0,0,0,0.4);} 
+        .base-blue { background: var(--l-blue); box-shadow: inset 0 0 20px rgba(0,0,0,0.4);}
+        
+        .path-red { background: rgba(178, 34, 34, 0.4); } .path-green { background: rgba(34, 139, 34, 0.4); }
+        .path-yellow { background: rgba(218, 165, 32, 0.4); } .path-blue { background: rgba(65, 105, 225, 0.4); }
+        
         .safe-zone { background: var(--safe-col); }
-        .safe-zone::after { content: '⭐'; position: absolute; font-size: 14px; opacity: 0.5; z-index: 1;}
-        .center-home { background: #0f172a; }
+        .safe-zone::after{ content: '⭐'; position: absolute; font-size: 14px; opacity: 0.6; z-index: 1;}
+        .center-home { background: #241407; background-image: radial-gradient(#4A2E15, #241407); }
 
-        /* TOKENS */
-        .token { width: 70%; height: 70%; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); transition: 0.3s transform, 0.3s box-shadow; z-index: 10; cursor: not-allowed; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* 3D TOKENS */
+        .token { width: 75%; height: 75%; border-radius: 50%; border: 1px solid rgba(0,0,0,0.5); box-shadow: 2px 2px 4px rgba(0,0,0,0.5), inset -2px -2px 4px rgba(0,0,0,0.3); transition: 0.3s transform; z-index: 10; cursor: not-allowed; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
         
-        .token-red { background: var(--l-red); } .token-green { background: var(--l-green); }
-        .token-yellow { background: var(--l-yellow); } .token-blue { background: var(--l-blue); }
-        .cell .token:nth-child(n+2) { width: 45%; height: 45%; border-width: 1px; }
+        .token-red { background: radial-gradient(circle at 30% 30%, #ff4d4d, var(--l-red)); } 
+        .token-green { background: radial-gradient(circle at 30% 30%, #4ce64c, var(--l-green)); }
+        .token-yellow { background: radial-gradient(circle at 30% 30%, #ffd659, var(--l-yellow)); } 
+        .token-blue { background: radial-gradient(circle at 30% 30%, #6b8cff, var(--l-blue)); }
+        .cell .token:nth-child(n+2) { width: 45%; height: 45%; }
 
-        /* GLOWING MOVABLE TOKENS */
-        .movable { cursor: pointer; box-shadow: 0 0 0 3px #fff, 0 0 10px 5px #fcd34d !important; animation: pulse 1s infinite; z-index: 20;}
+        .movable { cursor: pointer; box-shadow: 0 0 0 2px #fff, 0 0 10px 4px #fcd34d !important; animation: pulse 1s infinite; z-index: 20;}
         .movable:active { transform: scale(0.8); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        /* CONTROLS & DICE */
+        /* CONTROLS */
         .controls { display: flex; gap: 15px; width: 100%; max-width: 380px; padding: 0 10px; box-sizing: border-box; align-items: center; }
-        .dice-box { width: 60px; height: 60px; background: white; border: 3px solid #0f172a; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 2.8rem; font-weight: 900; box-shadow: 0 5px 10px rgba(0,0,0,0.1); color: var(--text-dark); transition: 0.1s;}
+        .dice-box { width: 60px; height: 60px; background: #FFF8DC; border: 2px solid #8B4513; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 2.8rem; font-weight: 900; box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.4); color: #000; transition: 0.1s;}
         .rolling { animation: shake 0.3s linear infinite; filter: blur(1px); color: var(--l-red); }
         @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-15deg); } 100% { transform: rotate(0deg); } }
         
-        .dice-btn { flex-grow: 1; padding: 15px; border-radius: 12px; border: none; background: var(--text-dark); color: var(--bg-main); font-weight: 900; text-transform: uppercase; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
-        .dice-btn:active { transform: translateY(4px); }
-        .dice-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .dice-btn { flex-grow: 1; padding: 15px; border-radius: 8px; border: 2px solid #241407; background: #8B4513; color: white; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 #4A2E15;}
+        .dice-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #4A2E15; }
+        .dice-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 0 4px 0 #4A2E15;}
 
         /* MODALS */
-        .overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 100; text-align: center; }
-        .modal { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .modal h2 { margin: 0 0 20px; font-size: 1.8rem; color: #0f172a; text-transform: uppercase; letter-spacing: -1px;}
-        .mode-btn { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 12px; border: 2px solid #e2e8f0; background: #f8fafc; color: #0f172a; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
-        .mode-btn:hover { border-color: var(--l-blue); background: #eff6ff; }
-        .btn-hub { margin-top: 10px; padding: 12px 25px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; color: var(--text-dark); font-weight: 800; cursor: pointer; text-transform: uppercase;}
+        .overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 100; text-align: center; }
+        .modal { background: #FAF0E6; padding: 30px; border-radius: 8px; width: 85%; max-width: 350px; border: 4px solid #8B4513; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .modal h2 { margin: 0 0 20px; font-size: 1.8rem; color: #4A2E15; text-transform: uppercase; letter-spacing: -1px;}
+        .mode-btn { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 6px; border: 2px solid #8B4513; background: #fff; color: #4A2E15; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .btn-hub { margin-top: 10px; padding: 12px 25px; border-radius: 6px; border: 2px solid #8B4513; background: #4A2E15; color: white; font-weight: 800; cursor: pointer; text-transform: uppercase;}
     </style>
 </head>
 <body>
@@ -89,16 +82,14 @@
     <div class="msg-board" id="msg-board">Awaiting Roll...</div>
 </header>
 
-<div class="board-container">
-    <div class="board" id="board"></div>
-</div>
+<div class="board-container"><div class="board" id="board"></div></div>
 
 <div class="controls">
     <div class="dice-box" id="dice-display">⚀</div>
     <button class="dice-btn" id="roll-btn" onclick="userRollDice()">Roll Dice</button>
 </div>
 
-<button class="btn-hub" onclick="location.href='index.html'">Exit to Hub</button>
+<button class="btn-hub" style="margin-top:20px; width:150px;" onclick="location.href='index.html'">Exit Hub</button>
 
 <div class="overlay" id="setup-overlay">
     <div class="modal">
@@ -112,67 +103,48 @@
 </div>
 
 <script>
-    if(localStorage.getItem('theme') === 'dark') document.body.classList.add('gaming-mode');
     if(localStorage.getItem("loggedIn") !== "true") window.location.replace("login.html");
-
     const diceFaces = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
-    const mainPath = [ [6,1],[6,2],[6,3],[6,4],[6,5], [5,6],[4,6],[3,6],[2,6],[1,6],[0,6], [0,7], [0,8],[1,8],[2,8],[3,8],[4,8],[5,8], [6,9],[6,10],[6,11],[6,12],[6,13],[6,14], [7,14], [8,14],[8,13],[8,12],[8,11],[8,10],[8,9], [9,8],[10,8],[11,8],[12,8],[13,8],[14,8], [14,7], [14,6],[13,6],[12,6],[11,6],[10,6],[9,6], [8,5],[8,4],[8,3],[8,2],[8,1],[8,0], [7,0] ];
+    const mainPath = [[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0]];
     const safeSpots = [0, 8, 13, 21, 26, 34, 39, 47]; 
-
-    const playersInfo = {
+    const pInfo = {
         red: { offset: 0, home: [[7,1],[7,2],[7,3],[7,4],[7,5]], bases: [[2,2],[2,3],[3,2],[3,3]] },
         green: { offset: 13, home: [[1,7],[2,7],[3,7],[4,7],[5,7]], bases: [[2,11],[2,12],[3,11],[3,12]] },
         yellow: { offset: 26, home: [[7,13],[7,12],[7,11],[7,10],[7,9]], bases: [[11,11],[11,12],[12,11],[12,12]] },
         blue: { offset: 39, home: [[13,7],[12,7],[11,7],[10,7],[9,7]], bases: [[11,2],[11,3],[12,2],[12,3]] }
     };
 
-    let activePlayers = [];
-    let isBot = { red: false, green: false, yellow: false, blue: false };
-    let currentTurnIdx = 0;
-    let diceValue = null;
-    let hasRolled = false;
-    let consecutiveSixes = 0;
-    let tokens = { red: [-1,-1,-1,-1], green: [-1,-1,-1,-1], yellow: [-1,-1,-1,-1], blue: [-1,-1,-1,-1] };
+    let activeP = [], isBot = {}, turnIdx = 0, diceVal = null, rolled = false, sixes = 0;
+    let tokens = { red:[-1,-1,-1,-1], green:[-1,-1,-1,-1], yellow:[-1,-1,-1,-1], blue:[-1,-1,-1,-1] };
+    const msg = document.getElementById('msg-board');
 
-    const msgBoard = document.getElementById('msg-board');
-
-    // --- SETUP ---
     function startGame(mode) {
         document.getElementById('setup-overlay').style.display = 'none';
-        tokens = { red: [-1,-1,-1,-1], green: [-1,-1,-1,-1], yellow: [-1,-1,-1,-1], blue: [-1,-1,-1,-1] };
-        consecutiveSixes = 0;
-
-        if(mode === 'solo') { activePlayers = ['red', 'green', 'yellow', 'blue']; isBot = {red:false, green:true, yellow:true, blue:true}; }
-        else if(mode === '2p') { activePlayers = ['red', 'yellow']; isBot = {red:false, green:false, yellow:false, blue:false}; tokens.green=[999,999,999,999]; tokens.blue=[999,999,999,999];}
-        else if(mode === '3p') { activePlayers = ['red', 'green', 'yellow']; isBot = {red:false, green:false, yellow:false, blue:false}; tokens.blue=[999,999,999,999];}
-        else if(mode === '4p') { activePlayers = ['red', 'green', 'yellow', 'blue']; isBot = {red:false, green:false, yellow:false, blue:false}; }
-
-        createBoard();
-        currentTurnIdx = -1;
-        nextTurn();
+        tokens = { red:[-1,-1,-1,-1], green:[-1,-1,-1,-1], yellow:[-1,-1,-1,-1], blue:[-1,-1,-1,-1] };
+        sixes = 0;
+        if(mode === 'solo') { activeP = ['red', 'green', 'yellow', 'blue']; isBot = {red:false, green:true, yellow:true, blue:true}; }
+        else if(mode === '2p') { activeP = ['red', 'yellow']; isBot = {red:false, green:false, yellow:false, blue:false}; tokens.green=[999,999,999,999]; tokens.blue=[999,999,999,999];}
+        else if(mode === '3p') { activeP = ['red', 'green', 'yellow']; isBot = {red:false, green:false, yellow:false, blue:false}; tokens.blue=[999,999,999,999];}
+        else if(mode === '4p') { activeP = ['red', 'green', 'yellow', 'blue']; isBot = {red:false, green:false, yellow:false, blue:false}; }
+        createBoard(); turnIdx = -1; nextTurn();
     }
 
     function createBoard() {
-        const board = document.getElementById('board');
-        board.innerHTML = '';
+        const b = document.getElementById('board'); b.innerHTML = '';
         for(let r=0; r<15; r++) {
             for(let c=0; c<15; c++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell'; cell.id = `cell-${r}-${c}`;
-
-                if (r<6 && c<6) cell.classList.add('base-red');
-                else if (r<6 && c>8) cell.classList.add('base-green');
-                else if (r>8 && c>8) cell.classList.add('base-yellow');
-                else if (r>8 && c<6) cell.classList.add('base-blue');
+                const cell = document.createElement('div'); cell.className = 'cell'; cell.id = `cell-${r}-${c}`;
+                if (r<6 && c<6) cell.classList.add('base-red'); else if (r<6 && c>8) cell.classList.add('base-green');
+                else if (r>8 && c>8) cell.classList.add('base-yellow'); else if (r>8 && c<6) cell.classList.add('base-blue');
                 else if (r>=6 && r<=8 && c>=6 && c<=8) cell.classList.add('center-home');
                 
-                playersInfo.red.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-red'); });
-                playersInfo.green.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-green'); });
-                playersInfo.yellow.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-yellow'); });
-                playersInfo.blue.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-blue'); });
+                pInfo.red.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-red'); });
+                pInfo.green.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-green'); });
+                pInfo.yellow.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-yellow'); });
+                pInfo.blue.home.forEach(([hr, hc]) => { if(r===hr && c===hc) cell.classList.add('path-blue'); });
                 
                 safeSpots.forEach(idx => { const [sr, sc] = mainPath[idx]; if (r===sr && c===sc) cell.classList.add('safe-zone'); });
-                board.appendChild(cell);
+                b.appendChild(cell);
             }
         }
         renderTokens();
@@ -180,236 +152,121 @@
 
     function renderTokens() {
         document.querySelectorAll('.token').forEach(t => t.remove());
-        activePlayers.forEach(color => {
+        activeP.forEach(color => {
             tokens[color].forEach((pos, i) => {
                 if(pos === 999) return; 
-                let targetCell;
-                if (pos === -1) { const [r, c] = playersInfo[color].bases[i]; targetCell = document.getElementById(`cell-${r}-${c}`); } 
-                else if (pos <= 50) { const actualIdx = (pos + playersInfo[color].offset) % 52; const [r, c] = mainPath[actualIdx]; targetCell = document.getElementById(`cell-${r}-${c}`); } 
-                else { const homeIdx = pos - 51; const [r, c] = playersInfo[color].home[homeIdx]; targetCell = document.getElementById(`cell-${r}-${c}`); }
+                let tCell;
+                if (pos === -1) { const [r, c] = pInfo[color].bases[i]; tCell = document.getElementById(`cell-${r}-${c}`); } 
+                else if (pos <= 50) { const actIdx = (pos + pInfo[color].offset) % 52; const [r, c] = mainPath[actIdx]; tCell = document.getElementById(`cell-${r}-${c}`); } 
+                else { const hIdx = pos - 51; const [r, c] = pInfo[color].home[hIdx]; tCell = document.getElementById(`cell-${r}-${c}`); }
 
-                if (targetCell) {
-                    const t = document.createElement('div');
-                    t.className = `token token-${color}`;
-                    t.id = `token-${color}-${i}`;
-                    t.onclick = () => handleTokenClick(color, i);
-                    targetCell.appendChild(t);
+                if (tCell) {
+                    const t = document.createElement('div'); t.className = `token token-${color}`; t.id = `token-${color}-${i}`;
+                    t.onclick = () => handleMove(color, i); tCell.appendChild(t);
                 }
             });
         });
     }
 
-    // --- TURN LOGIC & DICE ---
     function nextTurn() {
-        currentTurnIdx = (currentTurnIdx + 1) % activePlayers.length;
-        hasRolled = false; diceValue = null;
-        
-        const nextColor = activePlayers[currentTurnIdx];
-        const btn = document.getElementById('roll-btn');
+        turnIdx = (turnIdx + 1) % activeP.length; rolled = false; diceVal = null;
+        const color = activeP[turnIdx]; const btn = document.getElementById('roll-btn');
         const banner = document.getElementById('turn-banner');
-        
-        banner.innerText = isBot[nextColor] ? `${nextColor} (BOT)` : `${nextColor}'s Turn`;
-        banner.style.background = `var(--l-${nextColor})`;
-        
-        if (isBot[nextColor]) {
-            btn.disabled = true; msgBoard.innerText = "Bot is rolling...";
-            setTimeout(executeBotRoll, 1000);
-        } else {
-            btn.disabled = false; msgBoard.innerText = "Roll the dice!";
-        }
+        banner.innerText = isBot[color] ? `${color} (BOT)` : `${color}'s Turn`;
+        banner.style.background = `var(--l-${color})`;
+        if (isBot[color]) { btn.disabled = true; msg.innerText = "Bot rolling..."; setTimeout(animRoll, 1000); } 
+        else { btn.disabled = false; msg.innerText = "Roll the dice!"; }
     }
 
-    function userRollDice() { if (!hasRolled && !isBot[activePlayers[currentTurnIdx]]) triggerRollAnimation(); }
-    function executeBotRoll() { if (!hasRolled && isBot[activePlayers[currentTurnIdx]]) triggerRollAnimation(); }
+    function userRollDice() { if (!rolled && !isBot[activeP[turnIdx]]) animRoll(); }
 
-    function triggerRollAnimation() {
-        hasRolled = true; document.getElementById('roll-btn').disabled = true;
-        const diceEl = document.getElementById('dice-display');
-        diceEl.classList.add('rolling');
-        msgBoard.innerText = "Rolling...";
-
-        let count = 0;
-        let rollInterval = setInterval(() => {
-            diceEl.innerText = diceFaces[Math.floor(Math.random() * 6) + 1];
-            count++;
-            if(count > 10) {
-                clearInterval(rollInterval);
-                diceEl.classList.remove('rolling');
-                finalizeRoll();
-            }
+    function animRoll() {
+        rolled = true; document.getElementById('roll-btn').disabled = true;
+        const dEl = document.getElementById('dice-display'); dEl.classList.add('rolling'); msg.innerText = "Rolling...";
+        let count = 0; let rInt = setInterval(() => {
+            dEl.innerText = diceFaces[Math.floor(Math.random()*6)+1]; count++;
+            if(count > 10) { clearInterval(rInt); dEl.classList.remove('rolling'); finalizeRoll(); }
         }, 50);
     }
 
     function finalizeRoll() {
-        diceValue = Math.floor(Math.random() * 6) + 1;
-        document.getElementById('dice-display').innerText = diceFaces[diceValue];
-        msgBoard.innerText = `Rolled a ${diceValue}!`;
-
-        if (diceValue === 6) {
-            consecutiveSixes++;
-            if (consecutiveSixes === 3) {
-                msgBoard.innerText = "Three 6s! Turn skipped.";
-                consecutiveSixes = 0;
-                setTimeout(nextTurn, 1500);
-                return;
-            }
-        } else { consecutiveSixes = 0; }
-
-        processMoves();
+        diceVal = Math.floor(Math.random() * 6) + 1;
+        document.getElementById('dice-display').innerText = diceFaces[diceVal]; msg.innerText = `Rolled a ${diceVal}!`;
+        if (diceVal === 6) { sixes++; if (sixes === 3) { msg.innerText = "Three 6s! Skipped."; sixes = 0; setTimeout(nextTurn, 1500); return; } } 
+        else { sixes = 0; }
+        checkMoves();
     }
 
-    // --- MOVEMENT LOGIC ---
-    function processMoves() {
-        const turn = activePlayers[currentTurnIdx];
-        let movableTokens = [];
-
-        tokens[turn].forEach((pos, idx) => {
-            if (pos === -1 && diceValue === 6) movableTokens.push(idx);
-            else if (pos !== -1 && pos !== 999 && pos + diceValue <= 56) movableTokens.push(idx);
+    function checkMoves() {
+        const color = activeP[turnIdx]; let m = [];
+        tokens[color].forEach((p, i) => {
+            if (p === -1 && diceVal === 6) m.push(i); else if (p !== -1 && p !== 999 && p + diceVal <= 56) m.push(i);
         });
-
-        if (movableTokens.length === 0) {
-            msgBoard.innerText = "No moves available.";
-            setTimeout(nextTurn, 1500);
-        } 
-        else if (movableTokens.length === 1) {
-            // Auto-move
-            msgBoard.innerText = "Auto-moving token...";
-            setTimeout(() => handleTokenClick(turn, movableTokens[0]), 600);
-        } 
+        if (m.length === 0) { msg.innerText = "No moves."; setTimeout(nextTurn, 1500); } 
+        else if (m.length === 1) { msg.innerText = "Auto-moving..."; setTimeout(() => handleMove(color, m[0]), 600); } 
         else {
-            if (isBot[turn]) {
-                // AI Logic
-                setTimeout(() => botDecideMove(turn, movableTokens), 800);
-            } else {
-                // Highlight for human
-                msgBoard.innerText = "Select a token to move.";
-                movableTokens.forEach(idx => {
-                    document.getElementById(`token-${turn}-${idx}`).classList.add('movable');
-                });
-            }
+            if (isBot[color]) setTimeout(() => botDecide(color, m), 800);
+            else { msg.innerText = "Select a token."; m.forEach(i => document.getElementById(`token-${color}-${i}`).classList.add('movable')); }
         }
     }
 
-    function handleTokenClick(color, tokenIdx) {
-        if (!hasRolled || color !== activePlayers[currentTurnIdx]) return;
-        let pos = tokens[color][tokenIdx];
-
-        // Ensure legal move
-        let isValid = false;
-        if (pos === -1 && diceValue === 6) isValid = true;
-        if (pos !== -1 && pos + diceValue <= 56) isValid = true;
-        if (!isValid) return;
-
-        // Remove highlights
+    function handleMove(color, tIdx) {
+        if (!rolled || color !== activeP[turnIdx]) return;
+        let p = tokens[color][tIdx]; let valid = false;
+        if (p === -1 && diceVal === 6) valid = true; if (p !== -1 && p + diceVal <= 56) valid = true;
+        if (!valid) return;
         document.querySelectorAll('.movable').forEach(el => el.classList.remove('movable'));
 
-        if (pos === -1) {
-            tokens[color][tokenIdx] = 0;
-            msgBoard.innerText = "Token unlocked!";
-            finishMove(true); // Gets extra roll for 6
-        } else {
-            tokens[color][tokenIdx] += diceValue;
-            let captured = checkCapture(color, tokenIdx);
-            let reachedHome = false;
-
-            if (tokens[color][tokenIdx] === 56) {
-                tokens[color][tokenIdx] = 999;
-                reachedHome = true;
-                msgBoard.innerText = "Token reached home!";
-                checkWinCondition(color);
-            }
-
-            // Extra turn rules
-            let extraTurn = false;
-            if (diceValue === 6) extraTurn = true;
-            if (captured) { extraTurn = true; msgBoard.innerText = "Captured! Extra roll."; }
-            if (reachedHome) { extraTurn = true; }
-
-            finishMove(extraTurn);
+        if (p === -1) { tokens[color][tIdx] = 0; msg.innerText = "Unlocked!"; endMove(true); } 
+        else {
+            tokens[color][tIdx] += diceVal; let cap = checkCap(color, tIdx); let home = false;
+            if (tokens[color][tIdx] === 56) { tokens[color][tIdx] = 999; home = true; msg.innerText = "Reached home!"; checkWin(color); }
+            let extra = false; if (diceVal === 6) extra = true; if (cap) { extra = true; msg.innerText = "Captured!"; } if (home) extra = true;
+            endMove(extra);
         }
     }
 
-    function checkCapture(color, tokenIdx) {
-        let currentPos = tokens[color][tokenIdx];
-        if (currentPos > 50) return false; 
-        const globalPos = (currentPos + playersInfo[color].offset) % 52;
-        if (safeSpots.includes(globalPos)) return false; 
-
-        let captured = false;
-        activePlayers.forEach(enemyColor => {
-            if (enemyColor !== color) {
-                tokens[enemyColor].forEach((enemyPos, eIdx) => {
-                    if (enemyPos >= 0 && enemyPos <= 50) {
-                        const enemyGlobalPos = (enemyPos + playersInfo[enemyColor].offset) % 52;
-                        if (globalPos === enemyGlobalPos) {
-                            tokens[enemyColor][eIdx] = -1; // Send to base
-                            captured = true;
-                        }
-                    }
-                });
-            }
-        });
-        return captured;
+    function checkCap(color, tIdx) {
+        let cp = tokens[color][tIdx]; if (cp > 50) return false; 
+        const gp = (cp + pInfo[color].offset) % 52; if (safeSpots.includes(gp)) return false; 
+        let cap = false;
+        activeP.forEach(ec => {
+            if (ec !== color) { tokens[ec].forEach((ep, ei) => {
+                    if (ep >= 0 && ep <= 50) { if (gp === (ep + pInfo[ec].offset) % 52) { tokens[ec][ei] = -1; cap = true; } }
+            });}
+        }); return cap;
     }
 
-    function finishMove(grantExtraTurn) {
+    function endMove(extra) {
         renderTokens();
         setTimeout(() => {
-            if (!grantExtraTurn) { nextTurn(); } 
-            else {
-                hasRolled = false;
-                if(isBot[activePlayers[currentTurnIdx]]) { executeBotRoll(); }
-                else { document.getElementById('roll-btn').disabled = false; msgBoard.innerText = "Roll again!";}
-            }
+            if (!extra) nextTurn(); 
+            else { rolled = false; if(isBot[activeP[turnIdx]]) animRoll(); else { document.getElementById('roll-btn').disabled = false; msg.innerText = "Roll again!";} }
         }, 800);
     }
 
-    function checkWinCondition(color) {
-        const allHome = tokens[color].every(p => p === 999);
-        if (allHome) {
-            alert(`${color.toUpperCase()} WINS THE MATCH!`);
-            if(!isBot[color]) {
-                let xp = parseInt(localStorage.getItem("userXP") || "0");
-                localStorage.setItem("userXP", xp + 200);
-            }
+    function checkWin(color) {
+        if (tokens[color].every(p => p === 999)) {
+            alert(`${color.toUpperCase()} WINS!`);
+            if(!isBot[color]) localStorage.setItem("userXP", parseInt(localStorage.getItem("userXP") || "0") + 200);
             document.getElementById('setup-overlay').style.display = 'flex';
         }
     }
 
-    // --- AI BOT LOGIC ---
-    function botDecideMove(color, movableIndices) {
-        let bestScore = -1; let bestToken = movableIndices[0];
-
-        movableIndices.forEach(idx => {
-            let pos = tokens[color][idx]; let score = 0;
-            // 1. Can it capture? (Simulate move)
-            if (pos !== -1 && pos + diceValue <= 50) {
-                const globalPos = (pos + diceValue + playersInfo[color].offset) % 52;
-                if (!safeSpots.includes(globalPos)) {
-                    activePlayers.forEach(enemyColor => {
-                        if (enemyColor !== color) {
-                            tokens[enemyColor].forEach(enemyPos => {
-                                if (enemyPos >= 0 && enemyPos <= 50) {
-                                    if (globalPos === (enemyPos + playersInfo[enemyColor].offset) % 52) score += 100;
-                                }
-                            });
-                        }
-                    });
+    function botDecide(color, moves) {
+        let bestScore = -1; let best = moves[0];
+        moves.forEach(i => {
+            let p = tokens[color][i]; let s = 0;
+            if (p !== -1 && p + diceVal <= 50) {
+                const gp = (p + diceVal + pInfo[color].offset) % 52;
+                if (!safeSpots.includes(gp)) {
+                    activeP.forEach(ec => { if (ec !== color) tokens[ec].forEach(ep => { if (ep >= 0 && ep <= 50) if (gp === (ep + pInfo[ec].offset) % 52) s += 100; }); });
                 }
             }
-            // 2. Can it reach home?
-            if (pos + diceValue === 56) score += 50;
-            // 3. Unlock from base
-            if (pos === -1 && diceValue === 6) score += 30;
-            // 4. Default: move the token furthest along
-            if (pos !== -1) score += pos;
-
-            if (score > bestScore) { bestScore = score; bestToken = idx; }
-        });
-        handleTokenClick(color, bestToken);
+            if (p + diceVal === 56) s += 50; if (p === -1 && diceVal === 6) s += 30; if (p !== -1) s += p;
+            if (s > bestScore) { bestScore = s; best = i; }
+        }); handleMove(color, best);
     }
-
 </script>
 </body>
 </html>
